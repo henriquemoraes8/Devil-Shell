@@ -144,7 +144,7 @@ void printComment (char* comment) {
 int main()
 {
     printComment("Initializing the Devil Shell...");
-	//init_dsh();
+        //init_dsh(); //Comment this out in order to compile properly on gcc
     printComment("Devil Shell has started");
     
     
