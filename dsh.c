@@ -107,6 +107,8 @@ bool builtin_cmd(job_t *last_job, int argc, char **argv)
     
     if (!strcmp(argv[0], "quit")) {
         /* Your code here */
+        //cleanup?
+        //close pipes?
         exit(EXIT_SUCCESS);
         exit(0);
 	}
@@ -142,7 +144,7 @@ void printComment (char* comment) {
 int main()
 {
     printComment("Initializing the Devil Shell...");
-	init_dsh();
+	//init_dsh();
     printComment("Devil Shell has started");
     
     
@@ -164,10 +166,12 @@ int main()
         /* Your code goes here */
         /* You need to loop through jobs list since a command line can contain ;*/
         /* Check for built-in commands */
+        if(!builtin_cmd(j, j->first_process->argc, j->first_process->argv)){
         /* If not built-in */
         /* If job j runs in foreground */
         /* spawn_job(j,true) */
         /* else */
         /* spawn_job(j,false) */
+        }
     }
 }
