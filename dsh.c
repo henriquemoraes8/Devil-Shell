@@ -104,11 +104,11 @@ bool builtin_cmd(job_t *last_job, int argc, char **argv)
 
 	    /* check whether the cmd is a built in command
         */
-
+    
         if (!strcmp(argv[0], "quit")) {
             /* Your code here */
+            
             exit(EXIT_SUCCESS);
-            exit(0);
 	}
         else if (!strcmp("jobs", argv[0])) {
             /* Your code here */
