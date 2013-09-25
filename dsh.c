@@ -127,12 +127,11 @@ bool builtin_cmd(job_t *last_job, int argc, char **argv)
 }
 
 /* Build prompt messaage */
+static char prompt_msg [20];
 char* promptmsg() 
 {
-    /* Modify this to include pid */
-    char buffer [20];
-    sprintf(buffer,"dsh-%d$ ", (int) getpid());
-	return buffer;
+    sprintf(prompt_msg, "dsh-%d$ ", (int) getpid());
+	return prompt_msg;
 }
 
 /* Prints a comment on the shell */
