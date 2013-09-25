@@ -1,5 +1,6 @@
 # Object files
 *.o
+dsh
 
 # Libraries
 *.lib
@@ -10,6 +11,9 @@
 *.so
 *.so.*
 *.dylib
+
+# XCode Files
+*.dSYM
 
 # Executables
 *.exe
