@@ -108,6 +108,7 @@ bool builtin_cmd(job_t *last_job, int argc, char **argv)
         if (!strcmp(argv[0], "quit")) {
             /* Your code here */
             exit(EXIT_SUCCESS);
+            exit(0);
 	}
         else if (!strcmp("jobs", argv[0])) {
             /* Your code here */
@@ -129,7 +130,9 @@ bool builtin_cmd(job_t *last_job, int argc, char **argv)
 char* promptmsg() 
 {
     /* Modify this to include pid */
-	return "dsh$ ";
+    char buffer [20];
+    sprintf(buffer,"dsh-%d$ ", (int) getpid());
+	return buffer;
 }
 
 int main() 
