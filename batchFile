@@ -1,0 +1,11 @@
+ls
+ls | wc
+jobs
+jobs
+cat < Makefile | wc > output 
+jobs
+cat Makefile | wc | ls
+cat < Makefile | wc | ls > output
+cat Makefile | wc < Makefile | ls > output
+cat < Makefile | wc < Makefile | ls > output
+ls | sort | wc

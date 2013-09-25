@@ -1,0 +1,27 @@
+
+-- batchFile: sample test input
+
+-- dsh.h: header file and function declaration pertaining to dsh.c
+
+-- dsh.c: Your main program. You should start here. Unless you have a good reason to poke around with other files, from implementation perspective, this is the only file you need to modifying for submssion.
+
+-- dsh-example: Sample executable of how your dsh should behave. You can simply run this as "./dsh-example" from the command-line. The handout also contains a appendix example the job execution using dsh-example.
+
+-- parse.c: Parser for your dsh. We have written all the necessary basic parser code so that you can focus on the interesting stuff.
+
+-- helper.c: Bunch of functions that can help you with your main code.
+
+-- hello.c: Sample .c program for testing the default c program compilation and execution.
+
+-- lab2.pdf: dsh lab instructions handout
+
+-- fork-examples: sample programs to test fork and exec calls. You should play with them before getting your hands dirty with actual implementation.
+
+-- lab2.tgz: tar ball of the source code.
+
+-- Makefile: make for compiling dsh. The debug option is enabled by default. If you want to debug your code, simply run "make debug", which will land you in a gdb prompt.
+
+-- README: Your lab implementation details and other stuff goes in here.
+
+-- README.CONTENTS: This file
+
