@@ -135,11 +135,17 @@ char* promptmsg()
 	return buffer;
 }
 
+/* Prints a comment on the shell */
+void printComment (char* comment) {
+    printf("\e[0;37m# %s\e[0m\n", comment);
+}
+
 int main() 
 {
-
+    printComment("Initializing the Devil Shell...");
 	init_dsh();
-	DEBUG("Successfully initialized\n");
+    printComment("Devil Shell has started");
+
 
 	while(1) {
         job_t *j = NULL;
