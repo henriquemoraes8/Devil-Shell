@@ -109,6 +109,7 @@ bool builtin_cmd(job_t *last_job, int argc, char **argv)
         /* Your code here */
         //cleanup?
         //close pipes?
+        //close stuffs
         exit(EXIT_SUCCESS);
         exit(0);
 	}
