@@ -4,6 +4,8 @@ void seize_tty(pid_t callingprocess_pgid); /* Grab control of the terminal for t
 void continue_job(job_t *j); /* resume a stopped job */
 void spawn_job(job_t *j, bool fg); /* spawn a new job */
 
+job_t *job_list = NULL; /* Keep track of jobs */
+
 /* Sets the process group id for a given job and process */
 int set_child_pgid(job_t *j, process_t *p)
 {
@@ -112,18 +114,18 @@ bool builtin_cmd(job_t *last_job, int argc, char **argv)
      */
     
     if (!strcmp(argv[0], "quit")) {
-        /* Your code here */
-            //cleanup?
-            //close pipes?
-            //close stuffs
         exit(EXIT_SUCCESS);
 	}
     else if (!strcmp("jobs", argv[0])) {
-        /* Your code here */
+        
         return true;
     }
 	else if (!strcmp("cd", argv[0])) {
-        /* Your code here */
+        if(argc <= 1 || chdir(argv[0]) == -1) {
+            //TODO: add to log
+            perror("Error: invalid arguments for directory change");
+        }
+        return true;
     }
     else if (!strcmp("bg", argv[0])) {
         /* Your code here */
@@ -146,6 +148,17 @@ char* promptmsg()
 /* Prints a comment on the shell */
 void printComment (char* comment) {
     printf("\e[0;37m# %s\e[0m\n", comment);
+}
+
+/* Returns the job corresponding to the given id */
+job_t *get_job (int j_id) {
+    job_t *job = job_list;
+    while (job != NULL) {
+        if (job->pgid == j_id)
+            return job;
+        job = job->next;
+    }
+    return NULL;
 }
 
 int main()
