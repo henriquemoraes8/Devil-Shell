@@ -121,6 +121,7 @@ bool builtin_cmd(job_t *last_job, int argc, char **argv)
     }
     else if (!strcmp("bg", argv[0])) {
         /* Your code here */
+        
     }
     else if (!strcmp("fg", argv[0])) {
         /* Your code here */
@@ -168,12 +169,11 @@ int main()
         while(j!= NULL){
             /* Check for built-in commands */
             if(!builtin_cmd(j, j->first_process->argc, j->first_process->argv)){
-            
-            /* If not built-in */
             /* If job j runs in foreground */
             /* spawn_job(j,true) */
             /* else */
             /* spawn_job(j,false) */
+                spawn_job(j,!(j->bg));
             }
             j = j->next;
         }
