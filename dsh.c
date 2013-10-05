@@ -162,7 +162,6 @@ int main()
     
 	while(1) {
         job_t *j = NULL;
-        pid_t pid;
         if(!(j = readcmdline(promptmsg()))) {
 			if (feof(stdin)) { /* End of file (ctrl-d) */
 				fflush(stdout);
@@ -183,10 +182,6 @@ int main()
             int argc = j->first_process->argc;
             char **argv = j->first_process->argv;
             if(!builtin_cmd(j, argc, argv)){
-            /* If job j runs in foreground */
-            /* spawn_job(j,true) */
-            /* else */
-            /* spawn_job(j,false) */
                 printf("***going to spawn job***\n\n");
                 spawn_job(j,!(j->bg));
             }
