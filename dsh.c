@@ -65,10 +65,11 @@ void spawn_job(job_t *j, bool fg)
                 
             case 0: /* child process  */
                 p->pid = getpid();
+                set_child_pgid(j, p);
                 new_child(j, p, fg);
                 printf("Child process begins, gonna exec\n");
                
-                if(execv(p->argv[0], p->argv) < 0) {
+                if(execve(p->argv[0], p->argv, environ) < 0) {
                     printf("%s: Command not found. \n", p->argv[0]);
                     exit(0);
                 }
@@ -82,18 +83,12 @@ void spawn_job(job_t *j, bool fg)
                 /* establish child process group */
                 p->pid = pid;
                 set_child_pgid(j, p);
-                int status;
-                if (waitpid(pid, &status, 0) < 0) {
-                    perror("waitpid error");
-                }
-                printf("%d (launched): %s\n", pid, *(p->argv));
-                
                 /* YOUR CODE HERE?  Parent-side code for new process.  */
         }
         
         /* YOUR CODE HERE?  Parent-side code for new job.*/
 
-	    seize_tty(getpid()); // assign the terminal back to dsh
+            seize_tty(getpid()); // assign the terminal back to dsh
         
 	}
 }
@@ -156,7 +151,7 @@ void printComment (char* comment) {
 int main()
 {
     printComment("Initializing the Devil Shell...");
-        //init_dsh(); //Comment this out in order to compile properly on gcc
+    init_dsh(); //Comment this out in order to compile properly on gcc
     printComment("Devil Shell has started");
     
     

@@ -31,7 +31,9 @@
 
 #define PRINT_INFO 1 /* FLAG for print_job() and other debug info */
 
-/* using bool as built-in; char is better in terms of space utilization, but
+extern char ** environ;
+
+/* using bool as built-in; char is better ine terms of space utilization, but
  * code is not succint */
 typedef enum { false, true } bool;
 
