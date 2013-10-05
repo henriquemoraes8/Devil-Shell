@@ -74,8 +74,7 @@ void spawn_job(job_t *j, bool fg)
             case 0: /* child process  */
                 p->pid = getpid();
                 new_child(j, p, fg);
-                printf("Child process begins, gonna exec\n");
-                exec(p->argv[0], p->argv, environ);
+                exec(p);
                 
                 
                 /* YOUR CODE HERE?  Child-side code for new process. */
@@ -108,52 +107,55 @@ void continue_job(job_t *job)
     }
 }
 /* Compiles and execute a job */
-bool exec(char* filename, char* argv[], char* envp[]){
-        //compile if necessary
+bool exec(process_t *p){
+    compile(p);
+    printf("\n%d (Launched): %s\n", p->pid, p->argv[0]);
+    if(execvp(p->argv[0], p->argv) < 0) {
+        printf("%s: Command not found. \n", p->argv[0]);
+        return false; //then kill child
+    } else {
+        
+    }
+    return true;
+}
+
+void compile(process_t *p){
+    char *filename_p = p->argv[0];
+    char *str_end_p;
     
-    char *name_p;
-    if((name_p = strstr(filename, ".c")) != NULL || (name_p = strstr(filename, ".cpp")) != NULL){
-            //find file
-        int length = (int) (name_p - filename);
+    if((str_end_p = strstr(filename_p, ".c")) != NULL || (str_end_p = strstr(filename_p, ".cpp")) != NULL){
+        int length = (int) (str_end_p - filename_p);
         if(length<=0){
             printf("Filename is empty!");
-            return false;
+            return;
         }
+        printf("Filename ends with .c or .cpp!\n");
         char *compiled_name = (char *) malloc(sizeof(char)*length);
-        memcpy(compiled_name, filename, length);
+        memcpy(compiled_name, filename_p, length);
         compiled_name[length] = '\0';
-        printf("new filename is %s: ",compiled_name);
-            // set args
+        printf("New filename is: %s\n",compiled_name);
+        
         char* c_argv[4];
-        c_argv[0] = "gcc";
+       
+        c_argv[0] = (strstr(filename_p, ".c") != NULL)? "gcc":"g++";
         c_argv[1] = "-o";
         c_argv[2] = compiled_name;
-        c_argv[3] = filename;
+        c_argv[3] = filename_p;
+        printf("command: %s %s %s %s\n",c_argv[0],c_argv[1],c_argv[2],c_argv[3]);
         job_t job;
         process_t process;
         process.next = NULL;
-        process.argc = 3;
+        process.argc = 4;
         process.argv = c_argv;
-        process.completed = false;
-        process.stopped = false;
-        process.status = -1;
-        process.ifile = NULL;
-        process.ofile = NULL;
         job.next = NULL;
         job.commandinfo = NULL;
         job.bg = false;
-        spawn_job(&job, true);
-        printf("File %s has been successfully compiled\n", filename);
-        strcpy(filename, compiled_name);
+        job.first_process=&process;
+        spawn_job(&job, false);
+        strcpy(filename_p, compiled_name);
         free(compiled_name);
         printf("Pointer freed\n");
     }
-        //execute
-    if(execvp(filename, argv) < 0) {
-        printf("%s: Command not found. \n", argv[0]);
-        return false; //then kill child
-    }
-    return true;
 }
 
 /*
