@@ -137,13 +137,14 @@ void compile(process_t *p){
         compiled_name[length] = '\0';
         printf("New filename is: %s\n",compiled_name);
         
-        char* c_argv[4];
+        char* c_argv[5];
        
         c_argv[0] = (strstr(filename_p, ".c") != NULL)? "gcc":"g++";
         c_argv[1] = "-o";
         c_argv[2] = compiled_name;
         c_argv[3] = filename_p;
-        printf("command: %s %s %s %s\n",c_argv[0],c_argv[1],c_argv[2],c_argv[3]);
+        c_argv[4] = "\0";
+        printf("command: %s %s %s %s %s\n",c_argv[0],c_argv[1],c_argv[2],c_argv[3], c_argv[4]);
         job_t job;
         process_t process;
         process.next = NULL;
@@ -154,7 +155,7 @@ void compile(process_t *p){
         job.bg = false;
         job.first_process=&process;
         spawn_job(&job, true);
-        strcpy(filename_p, compiled_name);
+        sprintf(p->argv[0], "./%s", compiled_name);
         free(compiled_name);
         printf("Pointer freed\n");
     }
