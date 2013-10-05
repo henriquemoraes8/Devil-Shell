@@ -6,6 +6,9 @@ void spawn_job(job_t *j, bool fg); /* spawn a new job */
 
 job_t *job_list = NULL; /* Keep track of jobs */
 
+job_t *get_job (int j_id); /* Returns the job corresponding to the given id */
+process_t *get_process(int pid); /* Returns the process corresponding to the given id */
+
 /* Sets the process group id for a given job and process */
 int set_child_pgid(job_t *j, process_t *p)
 {
@@ -96,10 +99,14 @@ void spawn_job(job_t *j, bool fg)
 }
 
 /* Sends SIGCONT signal to wake up the blocked job */
-void continue_job(job_t *j)
+void continue_job(job_t *job)
 {
-    if(kill(-j->pgid, SIGCONT) < 0)
-        perror("kill(SIGCONT)");
+    process_t *main_process = get_process(job -> pgid);
+    main_process -> stopped = false;
+    if (kill (-job->pgid, SIGCONT) < 0) {
+        perror ("kill (SIGCONT)");
+        //TODO: add to log
+    }
 }
 
 
@@ -127,27 +134,49 @@ bool builtin_cmd(job_t *last_job, int argc, char **argv)
         }
         return true;
     }
+    //Background command, works as long as next argument is a reasonable id
     else if (!strcmp("bg", argv[0])) {
-        /* Your code here */
+        int j_id = 0;
+        job_t *job;
+        if(argc <= 1 || !(j_id = atoi(argv[1]))) {
+            //TODO: add to log
+            perror("Error: invalid arguments for background command");
+            return true;
+        }
+        if (!(job = get_job(j_id))) {
+            //TODO: add to log
+            perror("Error: Could not find requested job");
+            return true;
+        }
+        if (job -> bg == true) {
+            //TODO: add to log
+            perror("Error: job already in background!");
+            return true;
+        }
+        if(job_is_completed(job)) {
+            //TODO: add to log
+            perror("Error: job already completed!");
+            return true;
+        }
         
+        printf("#Sending job '%s' to background", job -> commandinfo);
+        //TODO: add to log
+        continue_job(job);
+        job->bg = true;
+        return true;
     }
     else if (!strcmp("fg", argv[0])) {
-        /* Your code here */
+        
     }
     return false;       /* not a builtin command */
 }
 
-/* Build prompt messaage */
+/* Build prompt message */
 static char prompt_msg [20];
 char* promptmsg()
 {
     sprintf(prompt_msg, "dsh-%d$ ", (int) getpid());
 	return prompt_msg;
-}
-
-/* Prints a comment on the shell */
-void printComment (char* comment) {
-    printf("\e[0;37m# %s\e[0m\n", comment);
 }
 
 /* Returns the job corresponding to the given id */
@@ -161,11 +190,27 @@ job_t *get_job (int j_id) {
     return NULL;
 }
 
+/* Returns the process corresponding to the given id */
+process_t *get_process(int pid) {
+    job_t *job = job_list;
+    while (job != NULL) {
+        process_t *process = job -> first_process;
+        while (process != NULL){
+            if (process -> pid == pid)
+                return process;
+            process = process ->next;
+        }
+        job = job -> next;
+    }
+    return NULL;
+}
+
+
 int main()
 {
-    printComment("Initializing the Devil Shell...");
+    printf("#Initializing the Devil Shell...");
     init_dsh(); //Comment this out in order to compile properly on gcc
-    printComment("Devil Shell has started");
+    printf("#Devil Shell has started");
     
     
 	while(1) {
