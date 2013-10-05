@@ -207,7 +207,7 @@ bool builtin_cmd(job_t *last_job, int argc, char **argv)
             return true;
         }
         
-        printf("#Sending job '%s' to background", job -> commandinfo);
+        printf("#Sending job '%s' to background\n", job -> commandinfo);
         //TODO: add to log
         continue_job(job);
         job->bg = true;
@@ -247,7 +247,7 @@ bool builtin_cmd(job_t *last_job, int argc, char **argv)
             return true;
         }
         
-        printf("#Sending job '%s' to foreground", job -> commandinfo);
+        printf("#Sending job '%s' to foreground\n", job -> commandinfo);
         continue_job(job);
         job -> bg = false;
         seize_tty(j_id);
@@ -295,9 +295,9 @@ process_t *get_process(int pid) {
 
 int main()
 {
-    printf("#Initializing the Devil Shell...");
+    printf("#Initializing the Devil Shell...\n");
     init_dsh(); //Comment this out in order to compile properly on gcc
-    printf("#Devil Shell has started");
+    printf("#Devil Shell has started\n");
     
     
 	while(1) {
