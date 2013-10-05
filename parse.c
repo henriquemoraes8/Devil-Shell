@@ -3,7 +3,7 @@
 int isspace(int c); //check whether the char c is a space
 
 /* Initialize the members of job structure */
-bool init_job(job_t *j) 
+bool init_job(job_t *j)
 {
 	j->next = NULL;
 	if(!(j->commandinfo = (char *) calloc(MAX_LEN_CMDLINE,sizeof(char))))

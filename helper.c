@@ -5,7 +5,7 @@ int dsh_terminal_fd;    /* terminal file descriptor of dsh */
 int dsh_is_interactive; /* interactive or batch mode */
 
 /* Return true if all processes in the job have stopped or completed.  */
-bool job_is_stopped(job_t *j) 
+bool job_is_stopped(job_t *j)
 {
 
 	process_t *p;

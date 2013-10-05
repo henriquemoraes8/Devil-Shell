@@ -67,6 +67,11 @@ void spawn_job(job_t *j, bool fg)
             case 0: /* child process  */
                 p->pid = getpid();
                 new_child(j, p, fg);
+                printf("Child process begins, gonna exec\n");
+                if(execv(p->argv[0], p->argv) < 0) {
+                    printf("%s: Command not found. \n", p->argv[0]);
+                    exit(0);
+                }
                 
                 /* YOUR CODE HERE?  Child-side code for new process. */
                 perror("New child should have done an exec");
@@ -82,6 +87,12 @@ void spawn_job(job_t *j, bool fg)
         }
         
         /* YOUR CODE HERE?  Parent-side code for new job.*/
+        int status;
+        if (waitpid(pid, &status, 0) < 0) {
+            perror("waitpid error");
+        }
+        printf("%d (launched): %s\n", pid, *(p->argv));
+        
 	    seize_tty(getpid()); // assign the terminal back to dsh
         
 	}
@@ -151,6 +162,7 @@ int main()
     
 	while(1) {
         job_t *j = NULL;
+        pid_t pid;
         if(!(j = readcmdline(promptmsg()))) {
 			if (feof(stdin)) { /* End of file (ctrl-d) */
 				fflush(stdout);
@@ -168,11 +180,14 @@ int main()
         /* You need to loop through jobs list since a command line can contain ;*/
         while(j!= NULL){
             /* Check for built-in commands */
-            if(!builtin_cmd(j, j->first_process->argc, j->first_process->argv)){
+            int argc = j->first_process->argc;
+            char **argv = j->first_process->argv;
+            if(!builtin_cmd(j, argc, argv)){
             /* If job j runs in foreground */
             /* spawn_job(j,true) */
             /* else */
             /* spawn_job(j,false) */
+                printf("***going to spawn job***\n\n");
                 spawn_job(j,!(j->bg));
             }
             j = j->next;
