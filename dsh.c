@@ -59,7 +59,6 @@ void spawn_job(job_t *j, bool fg)
         /* Builtin commands are already taken care earlier */
         
         switch (pid = fork()) {
-                
             case -1: /* fork failure */
                 perror("fork");
                 exit(EXIT_FAILURE);
@@ -68,6 +67,7 @@ void spawn_job(job_t *j, bool fg)
                 p->pid = getpid();
                 new_child(j, p, fg);
                 printf("Child process begins, gonna exec\n");
+               
                 if(execv(p->argv[0], p->argv) < 0) {
                     printf("%s: Command not found. \n", p->argv[0]);
                     exit(0);
@@ -82,17 +82,17 @@ void spawn_job(job_t *j, bool fg)
                 /* establish child process group */
                 p->pid = pid;
                 set_child_pgid(j, p);
+                int status;
+                if (waitpid(pid, &status, 0) < 0) {
+                    perror("waitpid error");
+                }
+                printf("%d (launched): %s\n", pid, *(p->argv));
                 
                 /* YOUR CODE HERE?  Parent-side code for new process.  */
         }
         
         /* YOUR CODE HERE?  Parent-side code for new job.*/
-        int status;
-        if (waitpid(pid, &status, 0) < 0) {
-            perror("waitpid error");
-        }
-        printf("%d (launched): %s\n", pid, *(p->argv));
-        
+
 	    seize_tty(getpid()); // assign the terminal back to dsh
         
 	}
