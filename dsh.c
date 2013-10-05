@@ -175,7 +175,7 @@ bool builtin_cmd(job_t *last_job, int argc, char **argv)
     }
     
 	else if (!strcmp("cd", argv[0])) {
-        if(argc <= 1 || chdir(argv[0]) == -1) {
+        if(argc <= 1 || chdir(argv[1]) == -1) {
             //TODO: add to log
             perror("Error: invalid arguments for directory change");
         }
