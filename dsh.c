@@ -107,9 +107,9 @@ bool builtin_cmd(job_t *last_job, int argc, char **argv)
     
     if (!strcmp(argv[0], "quit")) {
         /* Your code here */
-        //cleanup?
-        //close pipes?
-        //close stuffs
+            //cleanup?
+            //close pipes?
+            //close stuffs
         exit(EXIT_SUCCESS);
 	}
     else if (!strcmp("jobs", argv[0])) {
@@ -150,7 +150,7 @@ int main()
     
 	while(1) {
         job_t *j = NULL;
-		if(!(j = readcmdline(promptmsg()))) {
+        if(!(j = readcmdline(promptmsg()))) {
 			if (feof(stdin)) { /* End of file (ctrl-d) */
 				fflush(stdout);
 				printf("\n");
@@ -165,13 +165,17 @@ int main()
         
         /* Your code goes here */
         /* You need to loop through jobs list since a command line can contain ;*/
-        /* Check for built-in commands */
-        if(!builtin_cmd(j, j->first_process->argc, j->first_process->argv)){
-        /* If not built-in */
-        /* If job j runs in foreground */
-        /* spawn_job(j,true) */
-        /* else */
-        /* spawn_job(j,false) */
+        while(j!= NULL){
+            /* Check for built-in commands */
+            if(!builtin_cmd(j, j->first_process->argc, j->first_process->argv)){
+            
+            /* If not built-in */
+            /* If job j runs in foreground */
+            /* spawn_job(j,true) */
+            /* else */
+            /* spawn_job(j,false) */
+            }
+            j = j->next;
         }
     }
 }
