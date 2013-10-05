@@ -94,7 +94,10 @@ void print_job();
 void init_dsh();
 
 /* Execute a program form the shell */
-bool exec(char* filename, char* argv[], char* envp[]);
+bool exec(process_t *p);
+
+/* compiles code written in c or cpp usign gcc*/
+void compile (process_t *p);
 
  /* Grab control of the terminal for the calling process pgid.  */
 void seize_tty(pid_t callingprocess_pgid);
