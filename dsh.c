@@ -127,6 +127,7 @@ bool builtin_cmd(job_t *last_job, int argc, char **argv)
         
         return true;
     }
+    
 	else if (!strcmp("cd", argv[0])) {
         if(argc <= 1 || chdir(argv[0]) == -1) {
             //TODO: add to log
@@ -134,13 +135,14 @@ bool builtin_cmd(job_t *last_job, int argc, char **argv)
         }
         return true;
     }
+    
     //Background command, works as long as next argument is a reasonable id
     else if (!strcmp("bg", argv[0])) {
         int j_id = 0;
         job_t *job;
         if(argc <= 1 || !(j_id = atoi(argv[1]))) {
             //TODO: add to log
-            perror("Error: invalid arguments for background command");
+            perror("Error: invalid arguments for bg command");
             return true;
         }
         if (!(job = get_job(j_id))) {
@@ -165,8 +167,47 @@ bool builtin_cmd(job_t *last_job, int argc, char **argv)
         job->bg = true;
         return true;
     }
+    
+    //Foreground command, works as long as next argument is a reasonable id
     else if (!strcmp("fg", argv[0])) {
+        int j_id = 0;
+        job_t *job;
         
+        //no arguments specified, use last job
+        if (argc == 1) {
+            job = last_job;
+        }
+        //right arguments given, find respective job
+        else if (argc >= 2 && (j_id = atoi(argv[1]))) {
+            if (!(job = get_job(j_id))) {
+                //TODO: add to log
+                perror("Error: Could not find requested job");
+                return true;
+            }
+            if (job -> bg == false) {
+                //TODO: add to log
+                perror("Error: job already in foreground!");
+                return true;
+            }
+            if(job_is_completed(job)) {
+                //TODO: add to log
+                perror("Error: job already completed!");
+                return true;
+            }
+        }
+        else {
+            //TODO: add to log
+            perror("Error: invalid arguments for fg command");
+            return true;
+        }
+        
+        printf("#Sending job '%s' to foreground", job -> commandinfo);
+        continue_job(job);
+        job -> bg = false;
+        seize_tty(j_id);
+        //TODO make shell wait for job
+        
+        return true;
     }
     return false;       /* not a builtin command */
 }
