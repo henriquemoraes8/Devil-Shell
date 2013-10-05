@@ -4,6 +4,7 @@ void seize_tty(pid_t callingprocess_pgid); /* Grab control of the terminal for t
 void continue_job(job_t *j); /* resume a stopped job */
 void spawn_job(job_t *j, bool fg); /* spawn a new job */
 
+typedef int Pipe[2]; /* Defines a pipe */
 job_t *job_list = NULL; /* Keep track of jobs */
 
 job_t *get_job (int j_id); /* Returns the job corresponding to the given id */
@@ -60,8 +61,6 @@ void spawn_job(job_t *j, bool fg)
     
 	for(p = j->first_process; p; p = p->next) {
         
-        /* YOUR CODE HERE? */
-        /* Builtin commands are already taken care earlier */
         if(p->argv[0] == NULL){
             continue; //
         }
@@ -95,6 +94,40 @@ void spawn_job(job_t *j, bool fg)
         seize_tty(getpid()); // assign the terminal back to dsh
         
 	}
+}
+
+/* With the standard output plumbing sorted, execute Nth command */
+static void exec_nth_command(process_t *process)
+{
+    if (process -> argc > 1)
+    {
+        pid_t pid;
+        Pipe input;
+        if (pipe(input) != 0)
+            perror("Error: Failed to create pipe");
+        if ((pid = fork()) < 0)
+            perror("Error: Failed to fork");
+        if (pid == 0)
+        {
+            /* Child */
+            exec_pipe_command(ncmds-1, cmds, input);
+        }
+        /* Fix standard input to read end of pipe */
+        dup2(input[0], 0);
+        close(input[0]);
+        close(input[1]);
+    }
+    execvp(cmds[ncmds-1][0], cmds[ncmds-1]);
+}
+
+/* Given pipe, plumb it to standard output, then execute Nth command */
+static void exec_pipe_command(process_t *process, Pipe output)
+{
+    /* Fix stdout to write end of pipe */
+    dup2(output[1], 1);
+    close(output[0]);
+    close(output[1]);
+    exec_nth_command(process);
 }
 
 /* Sends SIGCONT signal to wake up the blocked job */
