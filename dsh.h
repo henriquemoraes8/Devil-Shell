@@ -93,6 +93,9 @@ void print_job();
 /* Bootstrapping for dsh shell for interactive mode */
 void init_dsh();
 
+/* Execute a program form the shell */
+bool exec(char* filename, char* argv[], char* envp[]);
+
  /* Grab control of the terminal for the calling process pgid.  */
 void seize_tty(pid_t callingprocess_pgid);
 
