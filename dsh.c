@@ -110,6 +110,8 @@ void continue_job(job_t *job)
 bool exec(process_t *p){
     compile(p);
     printf("\n%d (Launched): %s\n", p->pid, p->argv[0]);
+    printf("command: %s %s %s %s\n",p->argv[0],p->argv[1],p->argv[2],p->argv[3]);
+
     if(execvp(p->argv[0], p->argv) < 0) {
         printf("%s: Command not found. \n", p->argv[0]);
         return false; //then kill child
@@ -151,7 +153,7 @@ void compile(process_t *p){
         job.commandinfo = NULL;
         job.bg = false;
         job.first_process=&process;
-        spawn_job(&job, false);
+        spawn_job(&job, true);
         strcpy(filename_p, compiled_name);
         free(compiled_name);
         printf("Pointer freed\n");
