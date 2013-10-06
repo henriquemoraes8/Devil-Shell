@@ -31,8 +31,6 @@
 
 #define PRINT_INFO 1 /* FLAG for print_job() and other debug info */
 
-extern char ** environ;
-
 /* using bool as built-in; char is better ine terms of space utilization, but
  * code is not succint */
 typedef enum { false, true } bool;
@@ -92,12 +90,6 @@ void print_job();
 
 /* Bootstrapping for dsh shell for interactive mode */
 void init_dsh();
-
-/* Execute a program form the shell */
-bool exec(process_t *p);
-
-/* compiles code written in c or cpp usign gcc*/
-void compile (process_t *p);
 
  /* Grab control of the terminal for the calling process pgid.  */
 void seize_tty(pid_t callingprocess_pgid);
