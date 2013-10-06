@@ -18,9 +18,12 @@ bool exec(process_t *p);
 /* compiles code written in c or cpp usign gcc*/
 void compile (process_t *p);
 
-/* writes a log file to a
-void logger(const char *str, ...)
+/* writes a log file */
+void logger(const char *str, ...);
 
+const int PIPE_READ = 0;
+const int PIPE_WRITE = 1;
+ 
 typedef int Pipe[2]; /* Defines a pipe */
 
 job_t *job_list = NULL; /* Keep track of jobs */
@@ -29,6 +32,7 @@ job_t *get_job (int j_id); /* Returns the job corresponding to the given id */
 process_t *get_process(int pid); /* Returns the process corresponding to the given id */
 static void exec_nth_command(process_t *process);
 void exec_pipe_command(job_t *job, process_t *process, Pipe output);
+void io_redirection(process_t *process);
 
 /* Sets the process group id for a given job and process */
 int set_child_pgid(job_t *j, process_t *p)
@@ -61,7 +65,6 @@ void new_child(job_t *j, process_t *p, bool fg)
     
     /* Set the handling for job control signals back to the default. */
     signal(SIGTTOU, SIG_DFL);
-    exec(p);
 }
 
 /* Spawning a process with job control. fg is true if the
@@ -80,20 +83,53 @@ void spawn_job(job_t *j, bool fg)
 	pid_t pid;
 	process_t *p;
     
+    int prev_fd[2];
+    
 	for(p = j->first_process; p; p = p->next) {
         
         if(p->argv[0] == NULL){
             continue; //
         }
         
+        Pipe next_fd;
+        if (pipe(next_fd) < 0) {
+            perror("ERROR: failed to create pipe");
+        }
         switch (pid = fork()) {
             case -1: /* fork failure */
                 perror("fork");
                 exit(EXIT_FAILURE);
                 
             case 0: /* child process  */
+//                if (p -> next != NULL) {
+//                    close(fd[PIPE_READ]); //close write to pipe, in child
+//                    dup2(fd[PIPE_WRITE], STDIN_FILENO); // Replace stdin with the read end of the pipe
+//                    close(fd[PIPE_WRITE]);
+//                }
+                
+                // for pipe
+                if (p->next != NULL) {
+                    close(next_fd[0]); // close the read-end and write from write-end
+                    if (next_fd[1] != STDOUT_FILENO) {
+                        dup2(next_fd[1], STDOUT_FILENO);
+                        close(next_fd[1]);
+                    }
+                }
+                else { dup2(1, next_fd[1]); }
+                //if it is not the first guy, then read input from the pipe
+                //has a pre-pipe
+                if (p != j->first_process) {
+                    close(prev_fd[1]); // close the previous write-end and read from read-end.
+                    if (prev_fd[0] != STDIN_FILENO) {
+                        dup2(prev_fd[0], STDIN_FILENO);
+                        close(prev_fd[0]);
+                    }
+                }
+                
                 p->pid = getpid();
                 new_child(j, p, fg);
+                io_redirection(p);
+                exec(p);
                 Pipe input;
                 exec_pipe_command(j, p, input);
                 
@@ -101,8 +137,16 @@ void spawn_job(job_t *j, bool fg)
                 
             default: /* parent */
                 /* establish child process group */
+                close(next_fd[1]);
+                if (p->next == NULL) { close(next_fd[0]); }
+                
                 p->pid = pid;
                 set_child_pgid(j, p);
+                
+                prev_fd[0] = next_fd[0]; // next_pipe for current is prev_pipe for next
+                prev_fd[1] = next_fd[1];
+                
+                
                 /* YOUR CODE HERE?  Parent-side code for new process.  */
         }
         
@@ -114,6 +158,32 @@ void spawn_job(job_t *j, bool fg)
         seize_tty(getpid()); // assign the terminal back to dsh
         
 	}
+}
+
+void io_redirection(process_t *process) {
+    if (process -> ifile)
+    {
+        int fd0 = open(process -> ifile, O_RDONLY, 0);
+        if(fd0 >= 0) {
+            dup2(fd0, STDIN_FILENO);
+            close(fd0);
+        }
+        else {
+            perror("Could not open file for input");
+        }
+    }
+    
+    if (process -> ofile)
+    {
+        int fd1 = creat(process -> ofile, 0644);
+        if (fd1 >=0) {
+            dup2(fd1, STDOUT_FILENO);
+            close(fd1);
+        }
+        else {
+            perror("Could not open file for output");
+        }
+    }
 }
 
 /* Given pipe, plumb it to standard output, then execute Nth command */
@@ -374,7 +444,7 @@ int main()
             int argc = j->first_process->argc;
             char **argv = j->first_process->argv;
             if(!builtin_cmd(j, argc, argv)){
-                printf("***going to spawn job***\n\n");
+                DEBUG("***going to spawn job***");
                 spawn_job(j,!(j->bg));
             }
             j = j->next;
