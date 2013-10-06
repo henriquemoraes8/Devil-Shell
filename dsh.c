@@ -74,18 +74,48 @@ void spawn_job(job_t *j, bool fg)
 	pid_t pid;
 	process_t *p;
     
+    int prev_fd[2];
+    
 	for(p = j->first_process; p; p = p->next) {
         
         if(p->argv[0] == NULL){
             continue; //
         }
         
+        Pipe next_fd;
+        if (pipe(next_fd) < 0) {
+            perror("ERROR: failed to create pipe");
+        }
         switch (pid = fork()) {
             case -1: /* fork failure */
                 perror("fork");
                 exit(EXIT_FAILURE);
                 
             case 0: /* child process  */
+//                if (p -> next != NULL) {
+//                    close(fd[PIPE_READ]); //close write to pipe, in child
+//                    dup2(fd[PIPE_WRITE], STDIN_FILENO); // Replace stdin with the read end of the pipe
+//                    close(fd[PIPE_WRITE]);
+//                }
+                
+                // for pipe
+                if (p->next != NULL) {
+                    close(next_fd[0]); // close the read-end and write from write-end
+                    if (next_fd[1] != STDOUT_FILENO) {
+                        dup2(next_fd[1], STDOUT_FILENO);
+                        close(next_fd[1]);
+                    }
+                }
+                else { dup2(1, next_fd[1]); }
+                //if it is not the first guy, then read input from the pipe
+                //has a pre-pipe
+                if (p != j->first_process) {
+                    close(prev_fd[1]); // close the previous write-end and read from read-end.
+                    if (prev_fd[0] != STDIN_FILENO) {
+                        dup2(prev_fd[0], STDIN_FILENO);
+                        close(prev_fd[0]);
+                    }
+                }
                 
                 p->pid = getpid();
                 new_child(j, p, fg);
@@ -98,8 +128,16 @@ void spawn_job(job_t *j, bool fg)
                 
             default: /* parent */
                 /* establish child process group */
+                close(next_fd[1]);
+                if (p->next == NULL) { close(next_fd[0]); }
+                
                 p->pid = pid;
                 set_child_pgid(j, p);
+                
+                prev_fd[0] = next_fd[0]; // next_pipe for current is prev_pipe for next
+                prev_fd[1] = next_fd[1];
+                
+                
                 /* YOUR CODE HERE?  Parent-side code for new process.  */
         }
         
@@ -397,7 +435,7 @@ int main()
             int argc = j->first_process->argc;
             char **argv = j->first_process->argv;
             if(!builtin_cmd(j, argc, argv)){
-                printf("***going to spawn job***\n\n");
+                DEBUG("***going to spawn job***");
                 spawn_job(j,!(j->bg));
             }
             j = j->next;
