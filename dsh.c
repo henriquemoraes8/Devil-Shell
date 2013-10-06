@@ -131,10 +131,9 @@ void spawn_job(job_t *j, bool fg)
                     close(prev_filedes[PIPE_WRITE]);
                 }
                 
-                DEBUG("Make child");
                 new_child(j, p, fg);
                 DEBUG("Child process %d detected", p -> pid);
-                //io_redirection(p);
+                io_redirection(p);
                 DEBUG("Executing child process");
                 exec(p);
                 
@@ -165,13 +164,13 @@ void spawn_job(job_t *j, bool fg)
 
         seize_tty(getpid()); // assign the terminal back to dsh
         
-	}
+    }
 }
 
 void io_redirection(process_t *process) {
     if (process -> ifile)
     {
-        int fd0 = open(process -> ifile, O_RDONLY, 0);
+        int fd0 = open(process -> ifile, O_RDONLY);
         if(fd0 >= 0) {
             dup2(fd0, STDIN_FILENO);
             close(fd0);
@@ -180,7 +179,7 @@ void io_redirection(process_t *process) {
             perror("Could not open file for input");
         }
     }
-    
+
     if (process -> ofile)
     {
         int fd1 = creat(process -> ofile, 0644);
