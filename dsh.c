@@ -9,6 +9,8 @@ job_t *job_list = NULL; /* Keep track of jobs */
 
 job_t *get_job (int j_id); /* Returns the job corresponding to the given id */
 process_t *get_process(int pid); /* Returns the process corresponding to the given id */
+static void exec_nth_command(process_t *process);
+void exec_pipe_command(job_t *job, process_t *process, Pipe output);
 
 /* Sets the process group id for a given job and process */
 int set_child_pgid(job_t *j, process_t *p)
@@ -41,6 +43,7 @@ void new_child(job_t *j, process_t *p, bool fg)
     
     /* Set the handling for job control signals back to the default. */
     signal(SIGTTOU, SIG_DFL);
+    exec(p);
 }
 
 /* Spawning a process with job control. fg is true if the
@@ -73,8 +76,8 @@ void spawn_job(job_t *j, bool fg)
             case 0: /* child process  */
                 p->pid = getpid();
                 new_child(j, p, fg);
-                exec(p);
-                
+                Pipe input;
+                exec_pipe_command(j, p, input);
                 
                 /* YOUR CODE HERE?  Child-side code for new process. */
                 
@@ -95,9 +98,13 @@ void spawn_job(job_t *j, bool fg)
 	}
 }
 
-/* With the standard output plumbing sorted, execute Nth command */
-static void exec_nth_command(process_t *process)
+/* Given pipe, plumb it to standard output, then execute Nth command */
+void exec_pipe_command(job_t *job, process_t *process, Pipe output)
 {
+    /* Fix stdout to write end of pipe */
+    dup2(output[1], 1);
+    close(output[0]);
+    close(output[1]);
     if (process -> argc > 1)
     {
         pid_t pid;
@@ -109,24 +116,14 @@ static void exec_nth_command(process_t *process)
         if (pid == 0)
         {
             /* Child */
-            exec_pipe_command(ncmds-1, cmds, input);
+            new_child(job, process, !(job->bg));
         }
         /* Fix standard input to read end of pipe */
         dup2(input[0], 0);
         close(input[0]);
         close(input[1]);
     }
-    execvp(cmds[ncmds-1][0], cmds[ncmds-1]);
-}
 
-/* Given pipe, plumb it to standard output, then execute Nth command */
-static void exec_pipe_command(process_t *process, Pipe output)
-{
-    /* Fix stdout to write end of pipe */
-    dup2(output[1], 1);
-    close(output[0]);
-    close(output[1]);
-    exec_nth_command(process);
 }
 
 /* Sends SIGCONT signal to wake up the blocked job */
@@ -139,6 +136,7 @@ void continue_job(job_t *job)
         //TODO: add to log
     }
 }
+
 /* Compiles and execute a job */
 bool exec(process_t *p){
     compile(p);
