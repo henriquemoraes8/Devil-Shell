@@ -1,5 +1,6 @@
 #include "dsh.h"
 #include <time.h>
+#include <stdarg.h>
 
 
 /* enviroment map */
@@ -73,6 +74,10 @@ void new_child(job_t *j, process_t *p, bool fg)
     /* Set the handling for job control signals back to the default. */
     signal(SIGTTOU, SIG_DFL);
     
+    /* Log errors from this child */
+    int log = open(LOG_FILENAME, O_CREAT | O_WRONLY | O_APPEND);
+    dup2(log, STDERR_FILENO);
+    
 }
 
 /* Spawning a process with job control. fg is true if the
@@ -102,13 +107,13 @@ void spawn_job(job_t *j, bool fg)
         Pipe next_filedes;
         
         if (pipe(next_filedes) < 0) {
-            perror("ERROR: failed to create pipe");
+            logger(STDERR_FILENO, "Failed to create pipe");
             //TODO log message
         }
         
         switch (pid = fork()) {
             case -1: /* fork failure */
-                perror("fork");
+                logger(STDERR_FILENO,"Fork failure.");
                 exit(EXIT_FAILURE);
                 
             case 0: /* child process  */
@@ -241,8 +246,7 @@ bool exec(process_t *p){
     compile(p);
     printf("\n%d (Launched): %s\n", p->pid, p->argv[0]);
     if(execvp(p->argv[0], p->argv) < 0) {
-            //MESSAGE TO LOGGER
-        printf("%s: Command not found. \n", p->argv[0]);
+        logger(STDERR_FILENO, "%s: Command not found. \n", p->argv[0]);
         exit(EXIT_FAILURE);
         return false;
     }
@@ -256,7 +260,7 @@ void compile(process_t *p){
     if((str_end_p = strstr(filename_p, ".c")) != NULL || (str_end_p = strstr(filename_p, ".cpp")) != NULL){
         int length = (int) (str_end_p - filename_p);
         if(length<=0){
-            printf("Filename is empty!"); //Output to logger!
+            logger(STDERR_FILENO, "Filename is not valid."); //Output to logger!
             return;
         }
         DEBUG("Filename ends with .c or .cpp\n");
@@ -360,23 +364,23 @@ bool builtin_cmd(job_t *last_job, int argc, char **argv)
         else if (argc >= 2 && (j_id = atoi(argv[1]))) {
             if (!(job = get_job(j_id))) {
                 //TODO: add to log
-                perror("Error: Could not find requested job");
+                logger(STDERR_FILENO, "Could not find requested job");
                 return true;
             }
             if (job -> bg == false) {
                 //TODO: add to log
-                perror("Error: job already in foreground!");
+                logger(STDERR_FILENO, "The job is already in foreground.");
                 return true;
             }
             if(job_is_completed(job)) {
                 //TODO: add to log
-                perror("Error: job already completed!");
+                logger(STDERR_FILENO,"Job already completed!");
                 return true;
             }
         }
         else {
             //TODO: add to log
-            perror("Error: invalid arguments for fg command");
+            logger(STDERR_FILENO,"Invalid arguments for fg command");
             return true;
         }
         
@@ -425,34 +429,30 @@ void logger(int fd, const char *str, ...){
     va_list argptr;
     
     FILE *file;
-    int file_exists;
     
-    file=fopen(LOG_FILENAME,"r");
-    if (file==NULL)
-        file_exists=0;
-    else {
-        file_exists=1;
-        fclose(file);
-    }
-    
-    if (file_exists==1){
-        DEBUG("file exists!\n");
-        file=fopen(LOG_FILENAME,"r+b");
-    } else{
-        DEBUG("file does not exist!\n");
-        file=fopen(LOG_FILENAME,"w+b");
-    }
+    file=fopen(LOG_FILENAME,"a");
     
     if (file!=NULL){
         time_t ltime; /* calendar time */
         ltime = time(NULL); /* get current cal time */
+        char time[20];
+        strftime (time,80,"%c",localtime(&ltime));
+
         if(fd == 2){
-            fprintf(file, "[%s] ERROR: ", asctime(localtime(&ltime)));
+            fprintf(file, "[%s] ERROR: ", time);
+            printf("[%s] ERROR: ", time);
         } else {
-            fprintf(file, "[%s]: ", asctime(localtime(&ltime)));
+            fprintf(file, "[%s]: ", time);
+            printf("[%s]: ", time);
         }
+        va_start(argptr, str);
         vfprintf(file, str, argptr);
+        va_end(argptr);
+        va_start(argptr, str);
+        vprintf(str, argptr);
+        va_end(argptr);
         fprintf(file, "\n");
+        printf("\n");
         fclose(file);
     }
 }
