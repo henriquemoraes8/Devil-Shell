@@ -28,7 +28,7 @@ void logger(int fd, const char *str, ...);
 
 const int PIPE_READ = 0;
 const int PIPE_WRITE = 1;
- 
+
 typedef int Pipe[2]; /* Defines a pipe */
 
 job_t *job_list = NULL; /* Keep track of jobs */
@@ -108,7 +108,7 @@ void spawn_job(job_t *j, bool fg)
         
         if (pipe(next_filedes) < 0) {
             logger(STDERR_FILENO, "Failed to create pipe");
-            //TODO log message
+                //TODO log message
         }
         
         switch (pid = fork()) {
@@ -122,18 +122,18 @@ void spawn_job(job_t *j, bool fg)
                 set_child_pgid(j, p);
                 DEBUG("%d was assigned a group %d (inside child)", p->pid, j->pgid);
                 
-                // If it has pipe, open a write end
+                    // If it has pipe, open a write end
                 if (p->next) {
                     dup2(next_filedes[PIPE_WRITE], STDOUT_FILENO);
                     close(next_filedes[PIPE_WRITE]);
                     close(next_filedes[PIPE_READ]);
                 }
-                //If it is the last process, send output to stdout
+                    //If it is the last process, send output to stdout
                 else {
                     DEBUG("last process");
                     dup2(STDOUT_FILENO, next_filedes[PIPE_WRITE]);
                 }
-                //If it has a previous pipe, read input
+                    //If it has a previous pipe, read input
                 if (p != j->first_process) {
                     dup2(prev_filedes[PIPE_READ], STDIN_FILENO);
                     close(prev_filedes[PIPE_READ]);
@@ -149,7 +149,7 @@ void spawn_job(job_t *j, bool fg)
             default: /* parent */
                 /* establish child process group */
                 
-                //close pipe ends
+                    //close pipe ends
                 if (p->next == NULL) {
                     close(next_filedes[PIPE_WRITE]);
                 }
@@ -158,7 +158,7 @@ void spawn_job(job_t *j, bool fg)
                 p->pid = pid;
                 set_child_pgid(j, p);
                 
-                //The next pipe becomes the previous one
+                    //The next pipe becomes the previous one
                 prev_filedes[PIPE_WRITE] = next_filedes[PIPE_WRITE];
                 next_filedes[PIPE_READ] = next_filedes[PIPE_READ];
                 
@@ -170,7 +170,7 @@ void spawn_job(job_t *j, bool fg)
         int status, pid;
         DEBUG("parent waits until job %d in fg stops or terminates", j->pgid);
         pid = waitpid(WAIT_ANY, &status, WUNTRACED);
-
+        
         seize_tty(getpid()); // assign the terminal back to dsh
         
     }
@@ -178,7 +178,7 @@ void spawn_job(job_t *j, bool fg)
 
 void io_redirection(process_t *process) {
     if (process -> ifile)
-    {
+        {
         int fd0 = open(process -> ifile, O_RDONLY);
         if(fd0 >= 0) {
             dup2(fd0, STDIN_FILENO);
@@ -187,10 +187,10 @@ void io_redirection(process_t *process) {
         else {
             perror("Could not open file for input");
         }
-    }
-
+        }
+    
     if (process -> ofile)
-    {
+        {
         int fd1 = creat(process -> ofile, 0644);
         if (fd1 >=0) {
             dup2(fd1, STDOUT_FILENO);
@@ -199,7 +199,7 @@ void io_redirection(process_t *process) {
         else {
             perror("Could not open file for output");
         }
-    }
+        }
 }
 
 /* Given pipe, plumb it to standard output, then execute Nth command */
@@ -210,7 +210,7 @@ void exec_pipe_command(job_t *job, process_t *process, Pipe output)
     close(output[0]);
     close(output[1]);
     if (process -> argc > 1)
-    {
+        {
         pid_t pid;
         Pipe input;
         if (pipe(input) != 0)
@@ -218,16 +218,16 @@ void exec_pipe_command(job_t *job, process_t *process, Pipe output)
         if ((pid = fork()) < 0)
             perror("Error: Failed to fork");
         if (pid == 0)
-        {
+            {
             /* Child */
             new_child(job, process, !(job->bg));
-        }
+            }
         /* Fix standard input to read end of pipe */
         dup2(input[0], 0);
         close(input[0]);
         close(input[1]);
-    }
-
+        }
+    
 }
 
 /* Sends SIGCONT signal to wake up the blocked job */
@@ -237,7 +237,7 @@ void continue_job(job_t *job)
     main_process -> stopped = false;
     if (kill (-job->pgid, SIGCONT) < 0) {
         perror ("kill (SIGCONT)");
-        //TODO: add to log
+            //TODO: add to log
     }
 }
 
@@ -313,73 +313,73 @@ bool builtin_cmd(job_t *last_job, int argc, char **argv)
     
 	else if (!strcmp("cd", argv[0])) {
         if(argc <= 1 || chdir(argv[1]) == -1) {
-            //TODO: add to log
+                //TODO: add to log
             perror("Error: invalid arguments for directory change");
         }
         return true;
     }
     
-    //Background command, works as long as next argument is a reasonable id
+        //Background command, works as long as next argument is a reasonable id
     else if (!strcmp("bg", argv[0])) {
         int j_id = 0;
         job_t *job;
         if(argc <= 1 || !(j_id = atoi(argv[1]))) {
-            //TODO: add to log
+                //TODO: add to log
             perror("Error: invalid arguments for bg command");
             return true;
         }
         if (!(job = get_job(j_id))) {
-            //TODO: add to log
+                //TODO: add to log
             perror("Error: Could not find requested job");
             return true;
         }
         if (job -> bg == true) {
-            //TODO: add to log
+                //TODO: add to log
             perror("Error: job already in background!");
             return true;
         }
         if(job_is_completed(job)) {
-            //TODO: add to log
+                //TODO: add to log
             perror("Error: job already completed!");
             return true;
         }
         
         printf("#Sending job '%s' to background\n", job -> commandinfo);
-        //TODO: add to log
+            //TODO: add to log
         continue_job(job);
         job->bg = true;
         return true;
     }
     
-    //Foreground command, works as long as next argument is a reasonable id
+        //Foreground command, works as long as next argument is a reasonable id
     else if (!strcmp("fg", argv[0])) {
         int j_id = 0;
         job_t *job;
         
-        //no arguments specified, use last job
+            //no arguments specified, use last job
         if (argc == 1) {
             job = last_job;
         }
-        //right arguments given, find respective job
+            //right arguments given, find respective job
         else if (argc >= 2 && (j_id = atoi(argv[1]))) {
             if (!(job = get_job(j_id))) {
-                //TODO: add to log
+                    //TODO: add to log
                 logger(STDERR_FILENO, "Could not find requested job");
                 return true;
             }
             if (job -> bg == false) {
-                //TODO: add to log
+                    //TODO: add to log
                 logger(STDERR_FILENO, "The job is already in foreground.");
                 return true;
             }
             if(job_is_completed(job)) {
-                //TODO: add to log
+                    //TODO: add to log
                 logger(STDERR_FILENO,"Job already completed!");
                 return true;
             }
         }
         else {
-            //TODO: add to log
+                //TODO: add to log
             logger(STDERR_FILENO,"Invalid arguments for fg command");
             return true;
         }
@@ -388,7 +388,7 @@ bool builtin_cmd(job_t *last_job, int argc, char **argv)
         continue_job(job);
         job -> bg = false;
         seize_tty(j_id);
-        //TODO make shell wait for job
+            //TODO make shell wait for job
         
         return true;
     }
@@ -437,7 +437,7 @@ void logger(int fd, const char *str, ...){
         ltime = time(NULL); /* get current cal time */
         char time[20];
         strftime (time,80,"%c",localtime(&ltime));
-
+        
         if(fd == 2){
             fprintf(file, "[%s] ERROR: ", time);
             printf("[%s] ERROR: ", time);
