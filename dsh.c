@@ -1,10 +1,14 @@
 #include "dsh.h"
+#include <time.h>
+
 
 /* enviroment map */
 extern char ** environ;
 
 /* prompt message */
 static char prompt_msg [20];
+
+static const char *LOG_FILENAME = "dsh.log";
 
 /* resume a stopped job */
 void continue_job(job_t *j);
@@ -19,7 +23,7 @@ bool exec(process_t *p);
 void compile (process_t *p);
 
 /* writes a log file */
-void logger(const char *str, ...);
+void logger(int fd, const char *str, ...);
 
 const int PIPE_READ = 0;
 const int PIPE_WRITE = 1;
@@ -417,9 +421,40 @@ char* promptmsg() {
 	return prompt_msg;
 }
 
-void logger(const char *str, ...){
+void logger(int fd, const char *str, ...){
+    va_list argptr;
     
+    FILE *file;
+    int file_exists;
     
+    file=fopen(LOG_FILENAME,"r");
+    if (file==NULL)
+        file_exists=0;
+    else {
+        file_exists=1;
+        fclose(file);
+    }
+    
+    if (file_exists==1){
+        DEBUG("file exists!\n");
+        file=fopen(LOG_FILENAME,"r+b");
+    } else{
+        DEBUG("file does not exist!\n");
+        file=fopen(LOG_FILENAME,"w+b");
+    }
+    
+    if (file!=NULL){
+        time_t ltime; /* calendar time */
+        ltime = time(NULL); /* get current cal time */
+        if(fd == 2){
+            fprintf(file, "[%s] ERROR: ", asctime(localtime(&ltime)));
+        } else {
+            fprintf(file, "[%s]: ", asctime(localtime(&ltime)));
+        }
+        vfprintf(file, str, argptr);
+        fprintf(file, "\n");
+        fclose(file);
+    }
 }
 
 int main()
