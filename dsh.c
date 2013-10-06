@@ -147,6 +147,8 @@ void spawn_job(job_t *j, bool fg)
                 new_child(j, p, fg);
                 DEBUG("Child process %d detected", p -> pid);
                 io_redirection(p);
+                DEBUG("Compiling if necessary");
+                compile(p);
                 DEBUG("Executing child process");
                 exec(p);
                 
@@ -248,7 +250,6 @@ void continue_job(job_t *job){
 
 /* Compiles and execute a job */
 void exec(process_t *p){
-    compile(p);
     if(execvp(p->argv[0], p->argv) < 0) {
         logger(STDERR_FILENO, "%s: Command not found. \n", p->argv[0]);
         exit(EXIT_FAILURE);
