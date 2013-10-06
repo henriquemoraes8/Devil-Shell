@@ -1,8 +1,18 @@
 #include "dsh.h"
 
-void seize_tty(pid_t callingprocess_pgid); /* Grab control of the terminal for the calling process pgid.  */
-void continue_job(job_t *j); /* resume a stopped job */
-void spawn_job(job_t *j, bool fg); /* spawn a new job */
+extern char ** environ;
+
+/* resume a stopped job */
+void continue_job(job_t *j);
+
+/* spawn a new job */
+void spawn_job(job_t *j, bool fg);
+
+/* Execute a program form the shell */
+bool exec(process_t *p);
+
+/* compiles code written in c or cpp usign gcc*/
+void compile (process_t *p);
 
 job_t *job_list = NULL; /* Keep track of jobs */
 
