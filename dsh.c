@@ -1,6 +1,10 @@
 #include "dsh.h"
 
+/* enviroment map */
 extern char ** environ;
+
+/* prompt message */
+static char prompt_msg [20];
 
 /* resume a stopped job */
 void continue_job(job_t *j);
@@ -14,7 +18,11 @@ bool exec(process_t *p);
 /* compiles code written in c or cpp usign gcc*/
 void compile (process_t *p);
 
+/* writes a log file to a
+void logger(const char *str, ...)
+
 typedef int Pipe[2]; /* Defines a pipe */
+
 job_t *job_list = NULL; /* Keep track of jobs */
 
 job_t *get_job (int j_id); /* Returns the job corresponding to the given id */
@@ -301,15 +309,6 @@ bool builtin_cmd(job_t *last_job, int argc, char **argv)
     }
     return false;       /* not a builtin command */
 }
-
-/* Build prompt message */
-static char prompt_msg [20];
-char* promptmsg()
-{
-    sprintf(prompt_msg, "dsh-%d$ ", (int) getpid());
-	return prompt_msg;
-}
-
 /* Returns the job corresponding to the given id */
 job_t *get_job (int j_id) {
     job_t *job = job_list;
@@ -336,6 +335,15 @@ process_t *get_process(int pid) {
     return NULL;
 }
 
+char* promptmsg() {
+    sprintf(prompt_msg, "dsh-%d$ ", (int) getpid());
+	return prompt_msg;
+}
+
+void logger(const char *str, ...){
+    
+    
+}
 
 int main()
 {
