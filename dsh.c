@@ -11,6 +11,11 @@ static char prompt_msg [20];
 
 static const char *LOG_FILENAME = "dsh.log";
 
+static const int PIPE_READ = 0;
+static const int PIPE_WRITE = 1;
+
+typedef int Pipe[2]; /* Defines a pipe */
+
 /* resume a stopped job */
 void continue_job(job_t *j);
 
@@ -26,16 +31,13 @@ void compile (process_t *p);
 /* writes a log file */
 void logger(int fd, const char *str, ...);
 
-const int PIPE_READ = 0;
-const int PIPE_WRITE = 1;
+/* points to the head of a jobs linked list */
+job_t *job_head = NULL; 
 
-typedef int Pipe[2]; /* Defines a pipe */
-
-job_t *job_list = NULL; /* Keep track of jobs */
-
-job_t *get_job (int j_id); /* Returns the job corresponding to the given id */
+/* finds and returns a job given a jid*/
+job_t *search_j (int jid);
 process_t *get_process(int pid); /* Returns the process corresponding to the given id */
-static void exec_nth_command(process_t *process);
+    static void exec_nth_command(process_t *process);
 void exec_pipe_command(job_t *job, process_t *process, Pipe output);
 void io_redirection(process_t *process);
 
@@ -101,7 +103,7 @@ void spawn_job(job_t *j, bool fg)
 	for(p = j->first_process; p; p = p->next) {
         
         if(p->argv[0] == NULL){
-            continue; //
+            continue;
         }
         
         Pipe next_filedes;
@@ -321,14 +323,14 @@ bool builtin_cmd(job_t *last_job, int argc, char **argv)
     
         //Background command, works as long as next argument is a reasonable id
     else if (!strcmp("bg", argv[0])) {
-        int j_id = 0;
+        int jid = 0;
         job_t *job;
-        if(argc <= 1 || !(j_id = atoi(argv[1]))) {
+        if(argc <= 1 || !(jid = atoi(argv[1]))) {
                 //TODO: add to log
             perror("Error: invalid arguments for bg command");
             return true;
         }
-        if (!(job = get_job(j_id))) {
+        if (!(job = search_j(jid))) {
                 //TODO: add to log
             perror("Error: Could not find requested job");
             return true;
@@ -353,7 +355,7 @@ bool builtin_cmd(job_t *last_job, int argc, char **argv)
     
         //Foreground command, works as long as next argument is a reasonable id
     else if (!strcmp("fg", argv[0])) {
-        int j_id = 0;
+        int jid = 0;
         job_t *job;
         
             //no arguments specified, use last job
@@ -361,8 +363,8 @@ bool builtin_cmd(job_t *last_job, int argc, char **argv)
             job = last_job;
         }
             //right arguments given, find respective job
-        else if (argc >= 2 && (j_id = atoi(argv[1]))) {
-            if (!(job = get_job(j_id))) {
+        else if (argc >= 2 && (jid = atoi(argv[1]))) {
+            if (!(job = search_j(jid))) {
                     //TODO: add to log
                 logger(STDERR_FILENO, "Could not find requested job");
                 return true;
@@ -387,7 +389,7 @@ bool builtin_cmd(job_t *last_job, int argc, char **argv)
         printf("#Sending job '%s' to foreground\n", job -> commandinfo);
         continue_job(job);
         job -> bg = false;
-        seize_tty(j_id);
+        seize_tty(jid);
             //TODO make shell wait for job
         
         return true;
@@ -395,10 +397,10 @@ bool builtin_cmd(job_t *last_job, int argc, char **argv)
     return false;       /* not a builtin command */
 }
 /* Returns the job corresponding to the given id */
-job_t *get_job (int j_id) {
-    job_t *job = job_list;
+job_t *search_j (int jid) {
+    job_t *job = job_head;
     while (job != NULL) {
-        if (job->pgid == j_id)
+        if (job->pgid == jid)
             return job;
         job = job->next;
     }
@@ -407,7 +409,7 @@ job_t *get_job (int j_id) {
 
 /* Returns the process corresponding to the given id */
 process_t *get_process(int pid) {
-    job_t *job = job_list;
+    job_t *job = job_head;
     while (job != NULL) {
         process_t *process = job -> first_process;
         while (process != NULL){

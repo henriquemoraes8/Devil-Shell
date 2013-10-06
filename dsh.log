@@ -30,3 +30,11 @@
 
 [Sun Oct  6 03:39:55 2013] ERROR: asdasd: Command not found. 
 
+[DEBUG] dsh.c:144: Child process 12138 detected
+[DEBUG] dsh.c:146: Executing child process
+i686-apple-darwin11-llvm-gcc-4.2: asdasdasd: No such file or directory
+i686-apple-darwin11-llvm-gcc-4.2: no input files
+[DEBUG] dsh.c:144: Child process 12169 detected
+[DEBUG] dsh.c:146: Executing child process
+i686-apple-darwin11-llvm-gcc-4.2: asdadasdasd: No such file or directory
+i686-apple-darwin11-llvm-gcc-4.2: no input files
