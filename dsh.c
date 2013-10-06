@@ -1,15 +1,13 @@
 #include "dsh.h"
 
-extern char ** environ;
+void seize_tty(pid_t callingprocess_pgid); /* Grab control of the terminal for the calling process pgid.  */
+void continue_job(job_t *j); /* resume a stopped job */
+void spawn_job(job_t *j, bool fg); /* spawn a new job */
 
-/* Resume a stopped job */
-void continue_job(job_t *j);
+job_t *job_list = NULL; /* Keep track of jobs */
 
- /* Execute a program form the shell */
-bool exec(process_t *p);
-
-/* Compiles code written in c or cpp usign gcc*/
-void compile (process_t *p);
+job_t *get_job (int j_id); /* Returns the job corresponding to the given id */
+process_t *get_process(int pid); /* Returns the process corresponding to the given id */
 
 /* Sets the process group id for a given job and process */
 int set_child_pgid(job_t *j, process_t *p)
@@ -269,6 +267,32 @@ char* promptmsg()
 {
     sprintf(prompt_msg, "dsh-%d$ ", (int) getpid());
 	return prompt_msg;
+}
+
+/* Returns the job corresponding to the given id */
+job_t *get_job (int j_id) {
+    job_t *job = job_list;
+    while (job != NULL) {
+        if (job->pgid == j_id)
+            return job;
+        job = job->next;
+    }
+    return NULL;
+}
+
+/* Returns the process corresponding to the given id */
+process_t *get_process(int pid) {
+    job_t *job = job_list;
+    while (job != NULL) {
+        process_t *process = job -> first_process;
+        while (process != NULL){
+            if (process -> pid == pid)
+                return process;
+            process = process ->next;
+        }
+        job = job -> next;
+    }
+    return NULL;
 }
 
 
