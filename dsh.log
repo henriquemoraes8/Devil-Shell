@@ -38,3 +38,5 @@ i686-apple-darwin11-llvm-gcc-4.2: no input files
 [DEBUG] dsh.c:146: Executing child process
 i686-apple-darwin11-llvm-gcc-4.2: asdadasdasd: No such file or directory
 i686-apple-darwin11-llvm-gcc-4.2: no input files
+[DEBUG] dsh.c:146: Child process 12734 detected
+[DEBUG] dsh.c:148: Executing child process
