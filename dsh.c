@@ -110,8 +110,6 @@ void continue_job(job_t *job)
 bool exec(process_t *p){
     compile(p);
     printf("\n%d (Launched): %s\n", p->pid, p->argv[0]);
-    printf("command: %s %s %s %s\n",p->argv[0],p->argv[1],p->argv[2],p->argv[3]);
-
     if(execvp(p->argv[0], p->argv) < 0) {
         printf("%s: Command not found. \n", p->argv[0]);
         return false; //then kill child
@@ -128,23 +126,23 @@ void compile(process_t *p){
     if((str_end_p = strstr(filename_p, ".c")) != NULL || (str_end_p = strstr(filename_p, ".cpp")) != NULL){
         int length = (int) (str_end_p - filename_p);
         if(length<=0){
-            printf("Filename is empty!");
+            printf("Filename is empty!"); //Output to logger!
             return;
         }
         printf("Filename ends with .c or .cpp!\n");
         char *compiled_name = (char *) malloc(sizeof(char)*length);
         memcpy(compiled_name, filename_p, length);
         compiled_name[length] = '\0';
-        printf("New filename is: %s\n",compiled_name);
+        DEBUG("New filename is: %s\n",compiled_name);
         
         char* c_argv[5];
-       
         c_argv[0] = (strstr(filename_p, ".c") != NULL)? "gcc":"g++";
         c_argv[1] = "-o";
         c_argv[2] = compiled_name;
         c_argv[3] = filename_p;
         c_argv[4] = "\0";
-        printf("command: %s %s %s %s %s\n",c_argv[0],c_argv[1],c_argv[2],c_argv[3], c_argv[4]);
+        DEBUG("command : %s %s %s %s %s\n",
+              c_argv[0],c_argv[1],c_argv[2],c_argv[3], c_argv[4]);
         job_t job;
         process_t process;
         process.next = NULL;
