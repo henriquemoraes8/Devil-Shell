@@ -111,10 +111,10 @@ bool exec(process_t *p){
     compile(p);
     printf("\n%d (Launched): %s\n", p->pid, p->argv[0]);
     if(execvp(p->argv[0], p->argv) < 0) {
+            //MESSAGE TO LOGGER
         printf("%s: Command not found. \n", p->argv[0]);
-        return false; //then kill child
-    } else {
-        
+        exit(EXIT_FAILURE);
+        return false;
     }
     return true;
 }
