@@ -129,7 +129,7 @@ void compile(process_t *p){
             printf("Filename is empty!"); //Output to logger!
             return;
         }
-        printf("Filename ends with .c or .cpp!\n");
+        DEBUG("Filename ends with .c or .cpp\n");
         char *compiled_name = (char *) malloc(sizeof(char)*length);
         memcpy(compiled_name, filename_p, length);
         compiled_name[length] = '\0';
