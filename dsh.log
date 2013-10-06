@@ -40,3 +40,143 @@ i686-apple-darwin11-llvm-gcc-4.2: asdadasdasd: No such file or directory
 i686-apple-darwin11-llvm-gcc-4.2: no input files
 [DEBUG] dsh.c:146: Child process 12734 detected
 [DEBUG] dsh.c:148: Executing child process
+[DEBUG] dsh.c:146: Child process 14100 detected
+[DEBUG] dsh.c:148: Executing child process
+[DEBUG] dsh.c:150: Child process 14448 detected
+[DEBUG] dsh.c:152: Executing child process
+[Sun Oct  6 13:50:25 2013] ERROR: dasdasdasd: Command not found. 
+
+[DEBUG] dsh.c:150: Child process 14541 detected
+[DEBUG] dsh.c:152: Executing child process
+i686-apple-darwin11-llvm-gcc-4.2: asfasd: No such file or directory
+i686-apple-darwin11-llvm-gcc-4.2: no input files
+[DEBUG] dsh.c:148: Child process 15365 detected
+[DEBUG] dsh.c:150: Executing child process
+[DEBUG] dsh.c:148: Child process 15504 detected
+[DEBUG] dsh.c:150: Executing child process
+[DEBUG] dsh.c:148: Child process 15552 detected
+[DEBUG] dsh.c:150: Executing child process
+[DEBUG] dsh.c:148: Child process 15579 detected
+[DEBUG] dsh.c:150: Executing child process
+[DEBUG] dsh.c:148: Child process 15604 detected
+[DEBUG] dsh.c:150: Executing child process
+[DEBUG] dsh.c:148: Child process 15635 detected
+[DEBUG] dsh.c:150: Executing child process
+[DEBUG] dsh.c:148: Child process 15658 detected
+[DEBUG] dsh.c:150: Executing child process
+[DEBUG] dsh.c:148: Child process 15665 detected
+[DEBUG] dsh.c:150: Executing child process
+[DEBUG] dsh.c:148: Child process 15684 detected
+[DEBUG] dsh.c:150: Executing child process
+[DEBUG] dsh.c:148: Child process 15836 detected
+[DEBUG] dsh.c:150: Executing child process
+[DEBUG] dsh.c:148: Child process 15838 detected
+[DEBUG] dsh.c:150: Executing child process
+[Sun Oct  6 15:17:48 2013] ERROR: adasdasd: Command not found. 
+
+[DEBUG] dsh.c:148: Child process 15842 detected
+[DEBUG] dsh.c:150: Executing child process
+[DEBUG] dsh.c:148: Child process 16009 detected
+[DEBUG] dsh.c:150: Executing child process
+[DEBUG] dsh.c:148: Child process 16034 detected
+[DEBUG] dsh.c:150: Executing child process
+[DEBUG] dsh.c:148: Child process 16036 detected
+[DEBUG] dsh.c:150: Executing child process
+[DEBUG] dsh.c:148: Child process 16037 detected
+[DEBUG] dsh.c:150: Executing child process
+[DEBUG] dsh.c:148: Child process 16038 detected
+[DEBUG] dsh.c:150: Executing child process
+[DEBUG] dsh.c:148: Child process 16040 detected
+[DEBUG] dsh.c:150: Executing child process
+[DEBUG] dsh.c:148: Child process 16042 detected
+[DEBUG] dsh.c:150: Executing child process
+[DEBUG] dsh.c:148: Child process 16043 detected
+[DEBUG] dsh.c:150: Executing child process
+[DEBUG] dsh.c:148: Child process 16045 detected
+[DEBUG] dsh.c:150: Executing child process
+[DEBUG] dsh.c:148: Child process 16049 detected
+[DEBUG] dsh.c:150: Executing child process
+[DEBUG] dsh.c:148: Child process 16050 detected
+[DEBUG] dsh.c:150: Executing child process
+[DEBUG] dsh.c:148: Child process 16051 detected
+[DEBUG] dsh.c:150: Executing child process
+[DEBUG] dsh.c:148: Child process 16054 detected
+[DEBUG] dsh.c:150: Executing child process
+[DEBUG] dsh.c:148: Child process 16058 detected
+[DEBUG] dsh.c:150: Executing child process
+[DEBUG] dsh.c:148: Child process 16059 detected
+[DEBUG] dsh.c:150: Executing child process
+[DEBUG] dsh.c:148: Child process 16061 detected
+[DEBUG] dsh.c:150: Executing child process
+[Sun Oct  6 15:24:28 2013] ERROR: Child 16061 terminated abnormally
+[DEBUG] dsh.c:148: Child process 16064 detected
+[DEBUG] dsh.c:150: Executing child process
+[Sun Oct  6 15:24:36 2013] ERROR: Child 16064 terminated abnormally
+[DEBUG] dsh.c:148: Child process 16067 detected
+[DEBUG] dsh.c:150: Executing child process
+[Sun Oct  6 15:24:45 2013] ERROR: Child 16067 terminated abnormally
+[DEBUG] dsh.c:148: Child process 16070 detected
+[DEBUG] dsh.c:150: Executing child process
+[Sun Oct  6 15:25:01 2013] ERROR: Child 16070 terminated abnormally
+[DEBUG] dsh.c:148: Child process 16079 detected
+[DEBUG] dsh.c:150: Executing child process
+[DEBUG] dsh.c:148: Child process 16214 detected
+[DEBUG] dsh.c:150: Executing child process
+dsh.c:43: warning: ‘exec_nth_command’ declared ‘static’ but never defined
+[DEBUG] dsh.c:148: Child process 16233 detected
+[DEBUG] dsh.c:150: Executing child process
+[DEBUG] dsh.c:148: Child process 16238 detected
+[DEBUG] dsh.c:150: Executing child process
+[Sun Oct  6 15:32:41 2013] ERROR: Child 16238 terminated abnormally
+[DEBUG] dsh.c:148: Child process 16240 detected
+[DEBUG] dsh.c:150: Executing child process
+[DEBUG] dsh.c:148: Child process 16251 detected
+[DEBUG] dsh.c:150: Executing child process
+[DEBUG] dsh.c:148: Child process 16264 detected
+[DEBUG] dsh.c:150: Executing child process
+[DEBUG] dsh.c:148: Child process 16399 detected
+[DEBUG] dsh.c:150: Executing child process
+[Sun Oct  6 15:41:45 2013] ERROR: amke: Command not found. 
+
+[DEBUG] dsh.c:148: Child process 16400 detected
+[DEBUG] dsh.c:150: Executing child process
+dsh.c:43: warning: ‘exec_nth_command’ declared ‘static’ but never defined
+[DEBUG] dsh.c:148: Child process 16418 detected
+[DEBUG] dsh.c:150: Executing child process
+[DEBUG] dsh.c:491: ***going to spawn job***
+[DEBUG] dsh.c:170: parent waits until job 16419 in fg stops or terminates
+[DEBUG] dsh.c:128: 16419 was assigned a group 16419 (inside child)
+[DEBUG] dsh.c:137: last process
+[DEBUG] dsh.c:71: exec seize with pgid 16419
+[DEBUG] dsh.c:73: SEIZED
+[DEBUG] dsh.c:148: Child process 16419 detected
+[DEBUG] dsh.c:149: Executing child process
+[DEBUG] dsh.c:491: ***going to spawn job***
+[DEBUG] dsh.c:170: parent waits until job 16425 in fg stops or terminates
+[DEBUG] dsh.c:128: 16425 was assigned a group 16425 (inside child)
+[DEBUG] dsh.c:137: last process
+[DEBUG] dsh.c:71: exec seize with pgid 16425
+[DEBUG] dsh.c:73: SEIZED
+[DEBUG] dsh.c:148: Child process 16425 detected
+[DEBUG] dsh.c:149: Executing child process
+[DEBUG] dsh.c:491: ***going to spawn job***
+[DEBUG] dsh.c:170: parent waits until job 16426 in fg stops or terminates
+[DEBUG] dsh.c:128: 16426 was assigned a group 16426 (inside child)
+[DEBUG] dsh.c:137: last process
+[DEBUG] dsh.c:71: exec seize with pgid 16426
+[DEBUG] dsh.c:73: SEIZED
+[DEBUG] dsh.c:148: Child process 16426 detected
+[DEBUG] dsh.c:149: Executing child process
+[DEBUG] dsh.c:491: ***going to spawn job***
+[DEBUG] dsh.c:170: parent waits until job 16434 in fg stops or terminates
+[DEBUG] dsh.c:128: 16434 was assigned a group 16434 (inside child)
+[DEBUG] dsh.c:137: last process
+[DEBUG] dsh.c:71: exec seize with pgid 16434
+[DEBUG] dsh.c:73: SEIZED
+[DEBUG] dsh.c:148: Child process 16434 detected
+[DEBUG] dsh.c:149: Executing child process
+dsh.c:43: warning: ‘exec_nth_command’ declared ‘static’ but never defined
+[DEBUG] dsh.c:148: Child process 16454 detected
+[DEBUG] dsh.c:149: Executing child process
+[DEBUG] dsh.c:148: Child process 16478 detected
+[DEBUG] dsh.c:149: Executing child process

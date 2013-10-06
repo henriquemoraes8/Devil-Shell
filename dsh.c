@@ -23,7 +23,7 @@ void continue_job(job_t *j);
 void spawn_job(job_t *j, bool fg);
 
 /* Execute a program form the shell */
-bool exec(process_t *p);
+void exec(process_t *p);
 
 /* compiles code written in c or cpp usign gcc*/
 void compile (process_t *p);
@@ -32,12 +32,15 @@ void compile (process_t *p);
 void logger(int fd, const char *str, ...);
 
 /* points to the head of a jobs linked list */
-job_t *job_head = NULL; 
+job_t *job_head = NULL;
 
 /* finds and returns a job given a jid*/
 job_t *search_j (int jid);
-process_t *get_process(int pid); /* Returns the process corresponding to the given id */
-    static void exec_nth_command(process_t *process);
+
+/* Returns the process corresponding to the given id */
+process_t *get_process(int pid);
+
+static void exec_nth_command(process_t *process);
 void exec_pipe_command(job_t *job, process_t *process, Pipe output);
 void io_redirection(process_t *process);
 
@@ -123,7 +126,6 @@ void spawn_job(job_t *j, bool fg)
                 /* also establish child process group in child to avoid race (if parent has not done it yet). */
                 set_child_pgid(j, p);
                 DEBUG("%d was assigned a group %d (inside child)", p->pid, j->pgid);
-                
                     // If it has pipe, open a write end
                 if (p->next) {
                     dup2(next_filedes[PIPE_WRITE], STDOUT_FILENO);
@@ -141,7 +143,7 @@ void spawn_job(job_t *j, bool fg)
                     close(prev_filedes[PIPE_READ]);
                     close(prev_filedes[PIPE_WRITE]);
                 }
-                
+                printf("\n%d (Launched): %s\n", p->pid, p->argv[0]);
                 new_child(j, p, fg);
                 DEBUG("Child process %d detected", p -> pid);
                 io_redirection(p);
@@ -163,50 +165,52 @@ void spawn_job(job_t *j, bool fg)
                     //The next pipe becomes the previous one
                 prev_filedes[PIPE_WRITE] = next_filedes[PIPE_WRITE];
                 next_filedes[PIPE_READ] = next_filedes[PIPE_READ];
-                
-                
-                
         }
         
         /* YOUR CODE HERE?  Parent-side code for new job.*/
-        int status, pid;
         DEBUG("parent waits until job %d in fg stops or terminates", j->pgid);
-        pid = waitpid(WAIT_ANY, &status, WUNTRACED);
-        
+        if(fg){
+            int status, pid;
+            while((pid = waitpid(WAIT_ANY, &status, WUNTRACED)) > 0){
+                if (WIFEXITED(status)){
+                        process_t *p = get_process(pid);
+                    printf("%d (Completed): %s\n", pid, p->argv[0]);
+                }
+                else
+                    logger(2, "Child %d terminated abnormally", pid);
+            }
+        }
         seize_tty(getpid()); // assign the terminal back to dsh
         
     }
 }
 
-void io_redirection(process_t *process) {
-    if (process -> ifile)
-        {
+void io_redirection(process_t *process){
+    if (process -> ifile) {
         int fd0 = open(process -> ifile, O_RDONLY);
         if(fd0 >= 0) {
             dup2(fd0, STDIN_FILENO);
             close(fd0);
         }
         else {
-            perror("Could not open file for input");
+            logger(STDERR_FILENO,"Could not open file for input");
         }
-        }
+    }
     
-    if (process -> ofile)
-        {
+    if (process -> ofile) {
         int fd1 = creat(process -> ofile, 0644);
         if (fd1 >=0) {
             dup2(fd1, STDOUT_FILENO);
             close(fd1);
         }
         else {
-            perror("Could not open file for output");
+            logger(STDERR_FILENO,"Could not open file for output");
         }
-        }
+    }
 }
 
 /* Given pipe, plumb it to standard output, then execute Nth command */
-void exec_pipe_command(job_t *job, process_t *process, Pipe output)
-{
+void exec_pipe_command(job_t *job, process_t *process, Pipe output){
     /* Fix stdout to write end of pipe */
     dup2(output[1], 1);
     close(output[0]);
@@ -233,8 +237,7 @@ void exec_pipe_command(job_t *job, process_t *process, Pipe output)
 }
 
 /* Sends SIGCONT signal to wake up the blocked job */
-void continue_job(job_t *job)
-{
+void continue_job(job_t *job){
     process_t *main_process = get_process(job -> pgid);
     main_process -> stopped = false;
     if (kill (-job->pgid, SIGCONT) < 0) {
@@ -244,15 +247,12 @@ void continue_job(job_t *job)
 }
 
 /* Compiles and execute a job */
-bool exec(process_t *p){
+void exec(process_t *p){
     compile(p);
-    printf("\n%d (Launched): %s\n", p->pid, p->argv[0]);
     if(execvp(p->argv[0], p->argv) < 0) {
         logger(STDERR_FILENO, "%s: Command not found. \n", p->argv[0]);
         exit(EXIT_FAILURE);
-        return false;
     }
-    return true;
 }
 
 void compile(process_t *p){
@@ -299,8 +299,7 @@ void compile(process_t *p){
  * builtin_cmd - If the user has typed a built-in command then execute
  * it immediately.
  */
-bool builtin_cmd(job_t *last_job, int argc, char **argv)
-{
+bool builtin_cmd(job_t *last_job, int argc, char **argv){
     
     /* check whether the cmd is a built in command
      */
@@ -422,7 +421,7 @@ process_t *get_process(int pid) {
     return NULL;
 }
 
-char* promptmsg() {
+char* promptmsg(){
     sprintf(prompt_msg, "dsh-%d$ ", (int) getpid());
 	return prompt_msg;
 }
@@ -459,14 +458,14 @@ void logger(int fd, const char *str, ...){
     }
 }
 
-int main()
-{
+int main(){
     printf("#Initializing the Devil Shell...\n");
     init_dsh(); //Comment this out in order to compile properly on gcc
     printf("#Devil Shell has started\n");
     
     
 	while(1) {
+        job_head = NULL;
         job_t *j = NULL;
         if(!(j = readcmdline(promptmsg()))) {
 			if (feof(stdin)) { /* End of file (ctrl-d) */
@@ -476,7 +475,7 @@ int main()
             }
 			continue; /* NOOP; user entered return or spaces with return */
 		}
-        
+        job_head = j;
         /* Only for debugging purposes to show parser output; turn off in the
          * final code */
         if(PRINT_INFO) print_job(j);
@@ -487,6 +486,7 @@ int main()
             /* Check for built-in commands */
             int argc = j->first_process->argc;
             char **argv = j->first_process->argv;
+            
             if(!builtin_cmd(j, argc, argv)){
                 DEBUG("***going to spawn job***");
                 spawn_job(j,!(j->bg));
