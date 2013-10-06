@@ -57,14 +57,18 @@ void new_child(job_t *j, process_t *p, bool fg)
     
     p->pid = getpid();
     
+    if(fg && isatty(STDIN_FILENO)){// if fg is set and program has terminal
+		DEBUG("exec seize with pgid %d", j->pgid);
+        seize_tty(j->pgid);
+        DEBUG("SEIZED");
+    }// assign the terminal
+    
     /* also establish child process group in child to avoid race (if parent has not done it yet). */
     set_child_pgid(j, p);
     
-    if(fg) // if fg is set
-		seize_tty(j->pgid); // assign the terminal
-    
     /* Set the handling for job control signals back to the default. */
     signal(SIGTTOU, SIG_DFL);
+    
 }
 
 /* Spawning a process with job control. fg is true if the
@@ -83,7 +87,7 @@ void spawn_job(job_t *j, bool fg)
 	pid_t pid;
 	process_t *p;
     
-    int prev_fd[2];
+    Pipe prev_filedes;
     
 	for(p = j->first_process; p; p = p->next) {
         
@@ -91,63 +95,67 @@ void spawn_job(job_t *j, bool fg)
             continue; //
         }
         
-        Pipe next_fd;
-        if (pipe(next_fd) < 0) {
+        Pipe next_filedes;
+        
+        if (pipe(next_filedes) < 0) {
             perror("ERROR: failed to create pipe");
+            //TODO log message
         }
+        
         switch (pid = fork()) {
             case -1: /* fork failure */
                 perror("fork");
                 exit(EXIT_FAILURE);
                 
             case 0: /* child process  */
-//                if (p -> next != NULL) {
-//                    close(fd[PIPE_READ]); //close write to pipe, in child
-//                    dup2(fd[PIPE_WRITE], STDIN_FILENO); // Replace stdin with the read end of the pipe
-//                    close(fd[PIPE_WRITE]);
-//                }
-                
-                // for pipe
-                if (p->next != NULL) {
-                    close(next_fd[0]); // close the read-end and write from write-end
-                    if (next_fd[1] != STDOUT_FILENO) {
-                        dup2(next_fd[1], STDOUT_FILENO);
-                        close(next_fd[1]);
-                    }
-                }
-                else { dup2(1, next_fd[1]); }
-                //if it is not the first guy, then read input from the pipe
-                //has a pre-pipe
-                if (p != j->first_process) {
-                    close(prev_fd[1]); // close the previous write-end and read from read-end.
-                    if (prev_fd[0] != STDIN_FILENO) {
-                        dup2(prev_fd[0], STDIN_FILENO);
-                        close(prev_fd[0]);
-                    }
-                }
-                
                 p->pid = getpid();
-                new_child(j, p, fg);
-                io_redirection(p);
-                exec(p);
-                Pipe input;
-                exec_pipe_command(j, p, input);
+                /* also establish child process group in child to avoid race (if parent has not done it yet). */
+                set_child_pgid(j, p);
+                DEBUG("%d was assigned a group %d (inside child)", p->pid, j->pgid);
                 
-                /* YOUR CODE HERE?  Child-side code for new process. */
+                // If it has pipe, open a write end
+                if (p->next) {
+                    dup2(next_filedes[PIPE_WRITE], STDOUT_FILENO);
+                    close(next_filedes[PIPE_WRITE]);
+                    close(next_filedes[PIPE_READ]);
+                }
+                //If it is the last process, send output to stdout
+                else {
+                    DEBUG("last process");
+                    dup2(STDOUT_FILENO, next_filedes[PIPE_WRITE]);
+                }
+                //If it has a previous pipe, read input
+                if (p != j->first_process) {
+                    dup2(prev_filedes[PIPE_READ], STDIN_FILENO);
+                    close(prev_filedes[PIPE_READ]);
+                    close(prev_filedes[PIPE_WRITE]);
+                }
+                
+                DEBUG("Make child");
+                new_child(j, p, fg);
+                DEBUG("Child process %d detected", p -> pid);
+                //io_redirection(p);
+                DEBUG("Executing child process");
+                exec(p);
                 
             default: /* parent */
                 /* establish child process group */
-                close(next_fd[1]);
-                if (p->next == NULL) { close(next_fd[0]); }
+                
+                //close pipe ends
+                if (p->next == NULL) {
+                    close(next_filedes[PIPE_WRITE]);
+                }
+                close(next_filedes[PIPE_READ]);
                 
                 p->pid = pid;
                 set_child_pgid(j, p);
                 
-                prev_fd[0] = next_fd[0]; // next_pipe for current is prev_pipe for next
-                prev_fd[1] = next_fd[1];
+                //The next pipe becomes the previous one
+                prev_filedes[PIPE_WRITE] = next_filedes[PIPE_WRITE];
+                next_filedes[PIPE_READ] = next_filedes[PIPE_READ];
                 
                 
-                /* YOUR CODE HERE?  Parent-side code for new process.  */
+                
         }
         
         /* YOUR CODE HERE?  Parent-side code for new job.*/
