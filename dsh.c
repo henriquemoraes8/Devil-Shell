@@ -14,6 +14,8 @@ bool exec(process_t *p);
 /* compiles code written in c or cpp usign gcc*/
 void compile (process_t *p);
 
+const int PIPE_READ = 0;
+const int PIPE_WRITE = 1;
 typedef int Pipe[2]; /* Defines a pipe */
 job_t *job_list = NULL; /* Keep track of jobs */
 
@@ -21,6 +23,7 @@ job_t *get_job (int j_id); /* Returns the job corresponding to the given id */
 process_t *get_process(int pid); /* Returns the process corresponding to the given id */
 static void exec_nth_command(process_t *process);
 void exec_pipe_command(job_t *job, process_t *process, Pipe output);
+void io_redirection(process_t *process);
 
 /* Sets the process group id for a given job and process */
 int set_child_pgid(job_t *j, process_t *p)
@@ -53,7 +56,6 @@ void new_child(job_t *j, process_t *p, bool fg)
     
     /* Set the handling for job control signals back to the default. */
     signal(SIGTTOU, SIG_DFL);
-    exec(p);
 }
 
 /* Spawning a process with job control. fg is true if the
@@ -84,8 +86,11 @@ void spawn_job(job_t *j, bool fg)
                 exit(EXIT_FAILURE);
                 
             case 0: /* child process  */
+                
                 p->pid = getpid();
                 new_child(j, p, fg);
+                io_redirection(p);
+                exec(p);
                 Pipe input;
                 exec_pipe_command(j, p, input);
                 
@@ -106,6 +111,32 @@ void spawn_job(job_t *j, bool fg)
         seize_tty(getpid()); // assign the terminal back to dsh
         
 	}
+}
+
+void io_redirection(process_t *process) {
+    if (process -> ifile)
+    {
+        int fd0 = open(process -> ifile, O_RDONLY, 0);
+        if(fd0 >= 0) {
+            dup2(fd0, STDIN_FILENO);
+            close(fd0);
+        }
+        else {
+            perror("Could not open file for input");
+        }
+    }
+    
+    if (process -> ofile)
+    {
+        int fd1 = creat(process -> ofile, 0644);
+        if (fd1 >=0) {
+            dup2(fd1, STDOUT_FILENO);
+            close(fd1);
+        }
+        else {
+            perror("Could not open file for output");
+        }
+    }
 }
 
 /* Given pipe, plumb it to standard output, then execute Nth command */
