@@ -105,7 +105,12 @@ void new_child(job_t *j, process_t *p, bool fg)
 
 void spawn_job(job_t *j, bool fg)
 {
-    
+    if(job_head == NULL) {
+        job_head = j;
+    } else if(last_job!=NULL && last_job->next == NULL)
+        last_job->next = j;
+    last_job = j;
+
 	pid_t pid;
 	process_t *p;
     
@@ -514,11 +519,6 @@ int main(){
             int argc = j->first_process->argc;
             char **argv = j->first_process->argv;
             if(!builtin_cmd(j, argc, argv)){
-                if(job_head == NULL) {
-                    job_head = j;
-                } else if(last_job!=NULL && last_job->next == NULL)
-                        last_job->next = j;
-                last_job = j;
                 DEBUG("***going to spawn job***");
                 spawn_job(j,!(j->bg));
             }
