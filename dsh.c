@@ -218,23 +218,6 @@ void spawn_job(job_t *j, bool fg)
 
 }
 
-
-void wait_fg_job_to_exit(job_t *j) { // dsh waits for fg job to exit and grabs the terminal
-    int status, pid;
-    DEBUG("parent waits until job %d in fg stops or terminates", j->pgid);
-    while ((pid = waitpid(WAIT_ANY, &status, WUNTRACED)) > 0) {
-        DEBUG("child %d exited with status %d, j->pgid: %d", pid, status, j->pgid);
-        //update_process_status(find_process_by_id(pid), status);
-        // seize terminal only when fg job is stopped and dsh is running in terminal
-        if (job_is_stopped(j) && isatty(STDIN_FILENO)) {
-            DEBUG("dsh grabbing the terminal back");
-            seize_tty(getpid());
-            break;
-        }
-    }
-    DEBUG("parent done with fg job %d", j->pgid);
-}
-
 void io_redirection(process_t *process){
     if (process -> ifile) {
         int fd0 = open(process -> ifile, O_RDONLY);
