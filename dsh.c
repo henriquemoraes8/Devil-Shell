@@ -127,37 +127,6 @@ void new_child(job_t *j, process_t *p, bool fg)
     
 }
 
-// auto-compile c programs
-void compile_c(char* prog_name, char* source_name) {
-    pid_t pid;
-    int compile_status;
-    char* argv[4];
-    char* compiler_addr = "/usr/bin/g++";
-    char* option = "-o";
-    switch (pid = fork()) {
-        case -1: /* fork failure */
-            perror("Error: fork failed");
-            exit(EXIT_FAILURE);
-            
-        case 0: // child
-            argv[0] = compiler_addr; // g++ can compile c code
-            argv[1] = option;
-            argv[2] = prog_name;
-            argv[3] = source_name;
-            execvp("/usr/bin/g++", argv);
-            // should not reach here
-            char* error_msg = "Error: The new child should have done an exec (g++) but failed to do so.";
-            perror(error_msg);
-            exit(EXIT_FAILURE); /* NOT REACHED */
-            
-        default: // parent
-            waitpid(pid, &compile_status, WUNTRACED);
-            if (isatty(STDIN_FILENO))
-                seize_tty(getpid());
-            break;
-    }
-}
-
 /* Iterates through jobs and calls free on completed jobs*/
 void remove_zombies() {
     job_t *job = job_head;
@@ -230,6 +199,7 @@ void spawn_job(job_t *j, bool fg)
                 
                 /* also establish child process group in child to avoid race (if parent has not done it yet). */
                 set_child_pgid(j, p);
+
                 DEBUG("%d was assigned a group %d (inside child)", p->pid, j->pgid);
 
                     // If it has pipe, open a write end
@@ -251,9 +221,10 @@ void spawn_job(job_t *j, bool fg)
                 }
                 
                 new_child(j, p, fg);
+                compile(p);
+
                 DEBUG("Child process %d detected", p -> pid);
                 io_redirection(p);
-                
                 exec(p);
                 
                 logger(STDERR_FILENO,"Failure executing child");
@@ -384,26 +355,28 @@ void compile(process_t *p){
         c_argv[1] = "-o";
         c_argv[2] = compiled_name;
         c_argv[3] = filename_p;
-        c_argv[4] = "\0";
-        printf("command : %s %s %s %s %s\n",
-              c_argv[0],c_argv[1],c_argv[2],c_argv[3], c_argv[4]);
-        /*
-        job_t job;
-        process_t process;
-        process.next = NULL;
-        process.argc = 4;
-        process.argv = c_argv;
-        job.next = NULL;
-        job.commandinfo = NULL;
-        job.bg = false;
-        job.first_process=&process;
-        spawn_job(&job, true);
+            //c_argv[4] = "\0";
+        printf("command : %s %s %s %s\n",
+              c_argv[0],c_argv[1],c_argv[2],c_argv[3]);
+        pid_t pid;
+        int compile_status;
+
+        switch (pid = fork()) {
+            case -1: logger(2, "Fork failure at compiler");
+            case 0:
+                execvp(c_argv[0], c_argv);
+                execve(c_argv[0], c_argv, environ);
+            default:
+                waitpid(pid, &compile_status, WUNTRACED);
+                if (isatty(STDIN_FILENO))
+                    seize_tty(getpid());
+                break;
+              
+        }
         sprintf(p->argv[0], "./%s", compiled_name);
         free(compiled_name);
-        printf("Pointer freed\n");
-        fflush(stdout);
-         */
-        execvp(c_argv[0], c_argv);
+        
+        printf("got here");
     }
 }
 
@@ -630,6 +603,14 @@ int main(){
             char **argv = j->first_process->argv;
             if(!builtin_cmd(j, argc, argv)){
                 DEBUG("***going to spawn job***");
+               
+                process_t *p = j->first_process;
+                
+                while(p!=NULL){
+                    compile(p);
+                    p=p->next;
+                }
+                
                 spawn_job(j,!(j->bg));
             }
             j = j->next;

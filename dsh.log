@@ -1,0 +1,90 @@
+[DEBUG] dsh.c:251: Child process 22546 detected
+[Mon Oct  7 06:34:38 2013] ERROR: hello.c: Command not found.
+[DEBUG] dsh.c:251: Child process 22547 detected
+[DEBUG] dsh.c:251: Child process 22580 detected
+[Mon Oct  7 06:36:48 2013] ERROR: hello.c: Command not found.
+[DEBUG] dsh.c:251: Child process 22582 detected
+[DEBUG] dsh.c:251: Child process 22615 detected
+[Mon Oct  7 06:37:28 2013] ERROR: hello.c: Command not found.
+[DEBUG] dsh.c:251: Child process 22617 detected
+[DEBUG] dsh.c:251: Child process 22661 detected
+[Mon Oct  7 06:38:33 2013] ERROR: hello.c: Command not found.
+[DEBUG] dsh.c:251: Child process 22675 detected
+[DEBUG] dsh.c:251: Child process 22676 detected
+[DEBUG] dsh.c:251: Child process 22737 detected
+[Mon Oct  7 06:40:18 2013] ERROR: hello.c: Command not found.
+[DEBUG] dsh.c:251: Child process 22848 detected
+[Mon Oct  7 06:40:57 2013] ERROR: hello.c: Command not found.
+[DEBUG] dsh.c:251: Child process 22851 detected
+[DEBUG] dsh.c:251: Child process 22886 detected
+[Mon Oct  7 06:42:25 2013] ERROR: hello.c: Command not found.
+[DEBUG] dsh.c:251: Child process 22888 detected
+[DEBUG] dsh.c:251: Child process 22920 detected
+[DEBUG] dsh.c:251: Child process 22940 detected
+[Mon Oct  7 06:45:16 2013] ERROR: ./hello: Command not found.
+[DEBUG] dsh.c:251: Child process 22942 detected
+[DEBUG] dsh.c:251: Child process 22983 detected
+[Mon Oct  7 06:49:22 2013] ERROR: Exec Failed
+tcsetpgrp failure: Invalid argument
+[Mon Oct  7 06:49:22 2013] ERROR: hello.c: Command not found.
+[DEBUG] dsh.c:251: Child process 23139 detected
+[Mon Oct  7 06:53:30 2013] ERROR: Exec Failed
+tcsetpgrp failure: Invalid argument
+[Mon Oct  7 06:53:30 2013] ERROR: hello.c: Command not found.
+[DEBUG] dsh.c:251: Child process 23176 detected
+[Mon Oct  7 06:54:44 2013] ERROR: Exec Failed
+tcsetpgrp failure: Invalid argument
+[Mon Oct  7 06:54:44 2013] ERROR: hello.c: Command not found.
+[DEBUG] dsh.c:251: Child process 23213 detected
+[Mon Oct  7 06:56:47 2013] ERROR: hello.c: Command not found.
+[DEBUG] dsh.c:251: Child process 23217 detected
+[DEBUG] dsh.c:251: Child process 23246 detected
+[Mon Oct  7 06:58:17 2013] ERROR: hello.c: Command not found.
+[DEBUG] dsh.c:251: Child process 23248 detected
+[DEBUG] dsh.c:251: Child process 23417 detected
+tcsetpgrp failure: Invalid argument
+[Mon Oct  7 07:01:01 2013] ERROR: hello.c: Command not found.
+[DEBUG] dsh.c:251: Child process 23419 detected
+[DEBUG] dsh.c:251: Child process 23429 detected
+tcsetpgrp failure: Invalid argument
+[Mon Oct  7 07:02:24 2013] ERROR: hello.c: Command not found.
+[DEBUG] dsh.c:251: Child process 23431 detected
+[DEBUG] dsh.c:251: Child process 23465 detected
+[DEBUG] dsh.c:251: Child process 23473 detected
+tcsetpgrp failure: Invalid argument
+[Mon Oct  7 07:04:11 2013] ERROR: hello.c: Command not found.
+[DEBUG] dsh.c:253: Child process 23501 detected
+[Mon Oct  7 07:04:49 2013] ERROR: hello.c: Command not found.
+[DEBUG] dsh.c:253: Child process 23507 detected
+[DEBUG] dsh.c:253: Child process 23510 detected
+[Mon Oct  7 07:05:05 2013] ERROR: hello.c: Command not found.
+[DEBUG] dsh.c:253: Child process 23515 detected
+[DEBUG] dsh.c:253: Child process 23517 detected
+[Mon Oct  7 07:05:12 2013] ERROR: hello.c: Command not found.
+tcsetpgrp failure: Invalid argument
+[DEBUG] dsh.c:254: Child process 23557 detected
+[Mon Oct  7 07:06:15 2013] ERROR: hello.c: Command not found.
+tcsetpgrp failure: Invalid argument
+[DEBUG] dsh.c:254: Child process 23593 detected
+[Mon Oct  7 07:07:47 2013] ERROR: ./hello: Command not found.
+[DEBUG] dsh.c:254: Child process 23596 detected
+[DEBUG] dsh.c:254: Child process 23598 detected
+tcsetpgrp failure: Invalid argument
+[DEBUG] dsh.c:254: Child process 23606 detected
+[DEBUG] dsh.c:254: Child process 23609 detected
+tcsetpgrp failure: Invalid argument
+[DEBUG] dsh.c:254: Child process 23611 detected
+[Mon Oct  7 07:08:59 2013] ERROR: ./hello: Command not found.
+i686-apple-darwin11-llvm-gcc-4.2: æç]ˇ: No such file or directory
+i686-apple-darwin11-llvm-gcc-4.2: error trying to exec 'cc1': execvp: No such file or directory
+[DEBUG] dsh.c:254: Child process 23640 detected
+[Mon Oct  7 07:09:33 2013] ERROR: ./hello: Command not found.
+[DEBUG] dsh.c:223: Child process 23803 detected
+[Mon Oct  7 07:13:30 2013] ERROR: ./hello: Command not found.
+tcsetpgrp failure: Invalid argument
+[DEBUG] dsh.c:223: Child process 23866 detected
+[Mon Oct  7 07:15:34 2013] ERROR: ./hello: Command not found.
+[DEBUG] dsh.c:223: Child process 23869 detected
+[DEBUG] dsh.c:223: Child process 23895 detected
+[Mon Oct  7 07:15:54 2013] ERROR: ./hello: Command not found.
+[DEBUG] dsh.c:223: Child process 23897 detected
