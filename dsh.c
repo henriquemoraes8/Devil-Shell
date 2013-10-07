@@ -133,6 +133,7 @@ void spawn_job(job_t *j, bool fg)
                 
             case 0: /* child process  */
                 p->pid = getpid();
+                printf("\n%d (Launched): %s\n", p->pid, p->argv[0]);
                 /* also establish child process group in child to avoid race (if parent has not done it yet). */
                 set_child_pgid(j, p);
                 DEBUG("%d was assigned a group %d (inside child)", p->pid, j->pgid);
@@ -154,8 +155,6 @@ void spawn_job(job_t *j, bool fg)
                     dup2(STDOUT_FILENO, next_filedes[PIPE_WRITE]);
                 }
 
-                
-                printf("\n%d (Launched): %s\n", p->pid, p->argv[0]);
                 new_child(j, p, fg);
                 DEBUG("Child process %d detected", p -> pid);
                 io_redirection(p);
