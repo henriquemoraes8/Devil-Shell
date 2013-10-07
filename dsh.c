@@ -108,6 +108,7 @@ void spawn_job(job_t *j, bool fg)
 	process_t *p;
     
     pipe_t prev_filedes;
+    int prev_fd[2];
     
 	for(p = j->first_process; p; p = p->next) {
         
@@ -116,6 +117,7 @@ void spawn_job(job_t *j, bool fg)
         }
         
         pipe_t next_filedes;
+        int next_fd[2];
         
         if (pipe(next_filedes) < 0) {
             logger(STDERR_FILENO, "Failed to create pipe");
@@ -149,10 +151,11 @@ void spawn_job(job_t *j, bool fg)
                     close(prev_filedes[PIPE_READ]);
                     close(prev_filedes[PIPE_WRITE]);
                 }
+                
                 printf("\n%d (Launched): %s\n", p->pid, p->argv[0]);
                 new_child(j, p, fg);
                 DEBUG("Child process %d detected", p -> pid);
-                io_redirection(p);
+                //io_redirection(p);
                 DEBUG("Compiling if necessary");
                 //compile(p);
                 DEBUG("Executing child process");
@@ -174,11 +177,46 @@ void spawn_job(job_t *j, bool fg)
                     //The next pipe becomes the previous one
                 prev_filedes[PIPE_WRITE] = next_filedes[PIPE_WRITE];
                 next_filedes[PIPE_READ] = next_filedes[PIPE_READ];
+            
         }
         
-        
+        /* YOUR CODE HERE?  Parent-side code for new job.*/
+        DEBUG("parent waits until job %d in fg stops or terminates", j->pgid);
+    if(fg){
+        int status, pid;
+        while((pid = waitpid(WAIT_ANY, &status, WUNTRACED)) > 0){
+            if (WIFEXITED(status)){
+                process_t *p = get_process(pid);
+                p->completed = true;
+                printf("%d (Completed): %s\n", pid, p->argv[0]);
+                
+            }
+            else if (WIFSTOPPED(status)) {
+                DEBUG("Process %d stopped", p->pid);
+                if (kill (-j->pgid, SIGSTOP) < 0) {
+                    logger(STDERR_FILENO,"Kill (SIGSTOP) failed.");
+                }
+                p->stopped = 1;
+                j->notified = true;
+                j->bg = true;
+                print_jobs();
+                break;
+            }
+            else if (WIFCONTINUED(status)) { DEBUG("Process %d resumed", p->pid); p->stopped = 0; }
+            else if (WIFSIGNALED(status)) { DEBUG("Process %d terminated", p->pid); p->completed = 1; }
+            else logger(2, "Child %d terminated abnormally", pid);
+            DEBUG("Check seize job stopped is %d", job_is_stopped(j));
+            if (job_is_stopped(j) && isatty(STDIN_FILENO)) {
+                seize_tty(getpid());
+                break;
+            }
+        }
+    }
+
         
     }
+    
+    /* YOUR CODE HERE?  Parent-side code for new job.*/
 
 }
 
@@ -402,11 +440,17 @@ char* promptmsg(){
 void print_jobs(){
     job_t *j = job_head;
     int count = 1;
-    printf("Processes in the background: \n");
     while(j!=NULL){
-        if(j->notified){
-            printf("[%d] Stopped        %s\n", count, j->commandinfo);
-        }
+        printf("[%d]", count);
+        if(j->bg)
+            printf(" bg ");
+        else
+            printf(" fg ");
+        if(j->notified)
+            printf(" Stopped        ");
+        else
+            printf(" Running        ");
+        printf("%s\n", j->commandinfo);
         j = j->next;
         count++;
     }
