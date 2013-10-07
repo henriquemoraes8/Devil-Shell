@@ -40,7 +40,7 @@ job_t *job_head = NULL;
 job_t *last_job = NULL;
 
 /*Determines whether dsh is interactive or not*/
-bool is_shell_interactive;
+int dsh_is_interactive;
 
 /* finds and returns a job given a jid*/
 job_t *search_job (int jid);
@@ -207,6 +207,7 @@ void spawn_job(job_t *j, bool fg)
                 else {
                     printf("%d (Failed): %s\n", pid, p->argv[0]);
                 }
+                fflush(stdout);
             }
             else if (WIFSTOPPED(status)) {
                 DEBUG("Process %d stopped", p->pid);
@@ -317,6 +318,7 @@ void compile(process_t *p){
         sprintf(p->argv[0], "./%s", compiled_name);
         free(compiled_name);
         printf("Pointer freed\n");
+        fflush(stdout);
     }
 }
 
@@ -365,6 +367,7 @@ bool builtin_cmd(job_t *last_job, int argc, char **argv){
         }
         
         printf("#Sending job '%s' to background\n", job -> commandinfo);
+        fflush(stdout);
         continue_job(job);
         job->bg = true;
         job->notified = false;
@@ -402,6 +405,7 @@ bool builtin_cmd(job_t *last_job, int argc, char **argv){
         
         
         printf("#Sending job '%s' to foreground\n", job -> commandinfo);
+        fflush(stdout);
         continue_job(job);
         job -> bg = false;
         seize_tty(job->pgid);
@@ -452,6 +456,7 @@ process_t *get_process(int pid) {
 }
 
 char* promptmsg(){
+    if (!dsh_is_interactive) return "";
     sprintf(prompt_msg, "dsh-%d$ ", (int) getpid());
 	return prompt_msg;
 }
@@ -473,6 +478,7 @@ void print_jobs(){
         j = j->next;
         count++;
     }
+    fflush(stdout);
 }
 void logger(int fd, const char *str, ...){
     va_list argptr;
@@ -503,6 +509,7 @@ void logger(int fd, const char *str, ...){
         fprintf(file, "\n");
         printf("\n");
         fclose(file);
+        fflush(stdout);
     }
 }
 
