@@ -259,3 +259,28 @@ dsh.c:45: warning: ‘exec_nth_command’ declared ‘static’ but never define
 [DEBUG] dsh.c:157: Executing child process
 [Sun Oct  6 23:35:44 2013] ERROR: Error: invalid arguments for bg command
 [Sun Oct  6 23:35:54 2013] ERROR: The job is already in foreground.
+[DEBUG] dsh.c:153: Child process 54098 detected
+[DEBUG] dsh.c:155: Compiling if necessary
+[DEBUG] dsh.c:157: Executing child process
+[DEBUG] dsh.c:153: Child process 54133 detected
+[DEBUG] dsh.c:155: Compiling if necessary
+[DEBUG] dsh.c:157: Executing child process
+[DEBUG] dsh.c:153: Child process 54136 detected
+[DEBUG] dsh.c:155: Compiling if necessary
+[DEBUG] dsh.c:157: Executing child process
+wc: stdin: read: Input/output error
+[DEBUG] dsh.c:153: Child process 54184 detected
+[DEBUG] dsh.c:155: Compiling if necessary
+[DEBUG] dsh.c:157: Executing child process
+[DEBUG] dsh.c:153: Child process 54214 detected
+[DEBUG] dsh.c:155: Compiling if necessary
+[DEBUG] dsh.c:157: Executing child process
+[DEBUG] dsh.c:153: Child process 54217 detected
+[DEBUG] dsh.c:155: Compiling if necessary
+[DEBUG] dsh.c:157: Executing child process
+wc: stdin: read: Input/output error
+[DEBUG] dsh.c:90: After logger
+[DEBUG] dsh.c:154: Child process 54252 detected
+[DEBUG] dsh.c:156: Compiling if necessary
+[DEBUG] dsh.c:158: Executing child process
+wc: stdin: read: Input/output error

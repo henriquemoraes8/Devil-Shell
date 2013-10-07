@@ -85,8 +85,9 @@ void new_child(job_t *j, process_t *p, bool fg)
     signal(SIGTTOU, SIG_DFL);
     
     /* Log errors from this child */
-    int log = open(LOG_FILENAME, O_CREAT | O_WRONLY | O_APPEND);
-    dup2(log, STDERR_FILENO);
+    //int log = open(LOG_FILENAME, O_CREAT | O_WRONLY | O_APPEND);
+    //dup2(log, STDERR_FILENO);
+
     
 }
 
@@ -153,56 +154,32 @@ void spawn_job(job_t *j, bool fg)
                 DEBUG("Child process %d detected", p -> pid);
                 io_redirection(p);
                 DEBUG("Compiling if necessary");
-                compile(p);
+                //compile(p);
                 DEBUG("Executing child process");
                 exec(p);
+                DEBUG("Left exec");
                 
             default: /* parent */
                 /* establish child process group */
                 
-                    //close pipe ends
+                p->pid = pid;
+                set_child_pgid(j, p);
+                
+                //close pipe ends
                 if (p->next == NULL) {
                     close(next_filedes[PIPE_WRITE]);
                 }
                 close(next_filedes[PIPE_READ]);
-                
-                p->pid = pid;
-                set_child_pgid(j, p);
                 
                     //The next pipe becomes the previous one
                 prev_filedes[PIPE_WRITE] = next_filedes[PIPE_WRITE];
                 next_filedes[PIPE_READ] = next_filedes[PIPE_READ];
         }
         
-        /* YOUR CODE HERE?  Parent-side code for new job.*/
-        DEBUG("parent waits until job %d in fg stops or terminates", j->pgid);
-        if(fg){
-            int status, pid;
-            while((pid = waitpid(WAIT_ANY, &status, WUNTRACED)) > 0){
-                if (WIFEXITED(status)){
-                    process_t *p = get_process(pid);
-                    p->completed = true;
-                    printf("%d (Completed): %s\n", pid, p->argv[0]);
-                    
-                }
-                else if (WIFSTOPPED(status)) {
-                    DEBUG("Process %d stopped", p->pid);
-                    if (kill (-j->pgid, SIGSTOP) < 0) {
-                        logger(STDERR_FILENO,"Kill (SIGSTOP) failed.");
-                    }
-                    p->stopped = 1;
-                    j->notified = true;
-                    print_jobs();
-                    break;
-                }
-                else if (WIFCONTINUED(status)) { DEBUG("Process %d resumed", p->pid); p->stopped = 0; }
-                else if (WIFSIGNALED(status)) { DEBUG("Process %d terminated", p->pid); p->completed = 1; }
-                else logger(2, "Child %d terminated abnormally", pid);
-            }
-        }
-        seize_tty(getpid()); // assign the terminal back to dsh
+        
         
     }
+
 }
 
 void io_redirection(process_t *process){
@@ -227,33 +204,6 @@ void io_redirection(process_t *process){
             logger(STDERR_FILENO,"Could not open file for output");
         }
     }
-}
-
-/* Given pipe, plumb it to standard output, then execute Nth command */
-void exec_pipe_command(job_t *job, process_t *process, pipe_t output){
-    /* Fix stdout to write end of pipe */
-    dup2(output[1], 1);
-    close(output[0]);
-    close(output[1]);
-    if (process -> argc > 1)
-        {
-        pid_t pid;
-        pipe_t input;
-        if (pipe(input) != 0)
-            logger(STDERR_FILENO, "Error: Failed to create pipe");
-        if ((pid = fork()) < 0)
-            logger(STDERR_FILENO, "Error: Failed to fork");
-        if (pid == 0)
-            {
-            /* Child */
-            new_child(job, process, !(job->bg));
-            }
-        /* Fix standard input to read end of pipe */
-        dup2(input[0], 0);
-        close(input[0]);
-        close(input[1]);
-        }
-    
 }
 
 /* Sends SIGCONT signal to wake up the blocked job */
