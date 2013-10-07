@@ -103,7 +103,14 @@ void new_child(job_t *j, process_t *p, bool fg)
     set_child_pgid(j, p);
     
     /* Set the handling for job control signals back to the default. */
-    signal(SIGTTOU, SIG_DFL);
+    signal (SIGINT, SIG_DFL);
+    signal (SIGQUIT, SIG_DFL);
+    signal (SIGTSTP, SIG_DFL);
+    signal (SIGTTIN, SIG_DFL);
+    signal (SIGTTOU, SIG_DFL);
+    signal (SIGCHLD, SIG_DFL);
+
+    
     
     /* Log errors from this child */
     int log = open(LOG_FILENAME, O_CREAT | O_WRONLY | O_APPEND);
@@ -295,17 +302,17 @@ void compile(process_t *p){
     char *str_end_p;
     
     if((str_end_p = strstr(filename_p, ".c")) != NULL || (str_end_p = strstr(filename_p, ".cpp")) != NULL){
-        DEBUG("Compiling...");
+        printf("Compiling...");
         int length = (int) (str_end_p - filename_p);
         if(length<=0){
             logger(STDERR_FILENO, "Filename is not valid."); //Output to logger!
             return;
         }
-        DEBUG("Filename ends with .c or .cpp\n");
+        printf("Filename ends with .c or .cpp\n");
         char *compiled_name = (char *) malloc(sizeof(char)*length);
         memcpy(compiled_name, filename_p, length);
         compiled_name[length] = '\0';
-        DEBUG("New filename is: %s\n",compiled_name);
+        printf("New filename is: %s\n",compiled_name);
         
         char* c_argv[5];
         c_argv[0] = (strstr(filename_p, ".c") != NULL)? "gcc":"g++";
@@ -313,8 +320,9 @@ void compile(process_t *p){
         c_argv[2] = compiled_name;
         c_argv[3] = filename_p;
         c_argv[4] = "\0";
-        DEBUG("command : %s %s %s %s %s\n",
+        printf("command : %s %s %s %s %s\n",
               c_argv[0],c_argv[1],c_argv[2],c_argv[3], c_argv[4]);
+        /*
         job_t job;
         process_t process;
         process.next = NULL;
@@ -329,6 +337,8 @@ void compile(process_t *p){
         free(compiled_name);
         printf("Pointer freed\n");
         fflush(stdout);
+         */
+        execvp(c_argv[0], c_argv);
     }
 }
 

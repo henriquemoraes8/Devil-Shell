@@ -348,3 +348,23 @@
 
 [DEBUG] dsh.c:207: parent waits until job 0 in fg stops or terminates
 [DEBUG] dsh.c:159: 18616 was assigned a group 0 (inside child)
+[DEBUG] dsh.c:186: Child process 22016 detected
+[DEBUG] dsh.c:305: Compiling...
+[DEBUG] dsh.c:311: Filename ends with .c or .cpp
+
+[DEBUG] dsh.c:315: New filename is: hello
+
+[DEBUG] dsh.c:324: command : gcc -o hello hello.c 
+
+[DEBUG] dsh.c:213: parent waits until job 0 in fg stops or terminates
+[DEBUG] dsh.c:166: 22017 was assigned a group 0 (inside child)
+[DEBUG] dsh.c:181: last process
+[DEBUG] dsh.c:186: Child process 22057 detected
+[DEBUG] dsh.c:213: parent waits until job 0 in fg stops or terminates
+[DEBUG] dsh.c:166: 22058 was assigned a group 0 (inside child)
+[DEBUG] dsh.c:181: last process
+[DEBUG] dsh.c:186: Child process 22206 detected
+[Mon Oct  7 06:31:43 2013] ERROR: hello.c: Command not found.
+[DEBUG] dsh.c:186: Child process 22208 detected
+[DEBUG] dsh.c:186: Child process 22217 detected
+[DEBUG] dsh.c:186: Child process 22216 detected
