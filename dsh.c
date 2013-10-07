@@ -527,29 +527,28 @@ int main(){
             }
 			continue; /* NOOP; user entered return or spaces with return */
 		}
-        if(job_head == NULL){
-            job_head = j;
-            last_job = j;
+        if(j!=NULL){
+            if(job_head == NULL)
+                job_head = j;
+            if(last_job != NULL)
+                last_job->next = j;
         }
         /* Only for debugging purposes to show parser output; turn off in the
          * final code */
         if(PRINT_INFO) print_job(j);
-        
         /* Your code goes here */
         /* You need to loop through jobs list since a command line can contain ;*/
         while(j!= NULL){
+            last_job = j;
             /* Check for built-in commands */
             int argc = j->first_process->argc;
             char **argv = j->first_process->argv;
-            
             if(!builtin_cmd(j, argc, argv)){
                 DEBUG("***going to spawn job***");
                 spawn_job(j,!(j->bg));
             }
-            if(last_job!=NULL)
-                last_job->next = j->next;
             j = j->next;
-            last_job = j;
+            
         }
         
     }
