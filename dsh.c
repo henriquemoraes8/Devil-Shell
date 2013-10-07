@@ -55,7 +55,7 @@ job_t *search_job_pos (int pos);
 process_t *get_process(int pid);
 
 /*Waits for a foreground process to cease*/
-void wait_for_job (process_t *p, job_t *j, int fg);
+void wait_for_job (job_t *j, int fg);
 
 void add_job(job_t *j);
 
@@ -275,20 +275,19 @@ void spawn_job(job_t *j, bool fg)
                 prev_filedes[PIPE_WRITE] = next_filedes[PIPE_WRITE];
                 prev_filedes[PIPE_READ] = next_filedes[PIPE_READ];
         }
-        wait_for_job(p, j, fg);
+        wait_for_job(j, fg);
     }
-    
 }
 
 /*Makes the parent process wait for a child to finish execution
  when the child is on the foreground*/
-void wait_for_job (process_t *p, job_t *j, int fg) {
+void wait_for_job (job_t *j, int fg) {
     if(fg){
         DEBUG("parent is waiting for child");
         int status, pid;
         while((pid = waitpid(WAIT_ANY, &status, WUNTRACED)) > 0){
+            process_t *p = get_process(pid);
             if (WIFEXITED(status)){
-                process_t *p = get_process(pid);
                 p->completed = true;
                 if (status == EXIT_SUCCESS) {
                     printf("%d (Completed): %s\n", pid, p->argv[0]);
@@ -495,7 +494,7 @@ bool builtin_cmd(job_t *last_job, int argc, char **argv){
         continue_job(job);
         job -> bg = false;
         seize_tty(job->pgid);
-            //TODO make shell wait for job
+        wait_for_job(job, true);
         return true;
     }
     return false;       /* not a builtin command */

@@ -72,8 +72,7 @@ process is the last process, it transfers the output of the pipe back to stdout.
 
 <<<< TALK ABOUT COMPILING >>>>
 
-	On the parent side, it closes the pipes and waits for the child to complete (if the process is executed on the foreground). It also logs the status of any child that 
-has stopped execution while performing the waitpid command.
+	On the parent side, it closes the pipes and waits for the child to complete (if the process is executed on the foreground) after each iteration. It also logs the status of any child that has stopped execution while performing the waitpid command.
 
 	Note that the dsh supports batch mode with syntax './dsh < batchFile'
 
@@ -81,15 +80,14 @@ has stopped execution while performing the waitpid command.
 /************************
  * Feedback on the lab
  ************************/
-/*
- * Any comments/questions/suggestions/experiences that you would help us to
- * improve the lab.
- * */
+
+It was very hard to figure out what to do and where to start. The guidelines were too
+general. The handout could be more specific in terms of what to implement and the mechanics behind some of the presented code. The code in the handout did not have 
+any in-depth explanation of what it was meant for.
 
 /************************
  * References
  ************************/
 
-/*
- * List of collaborators involved including any online references/citations.
- * */
+http://www.gnu.org/software/libc/manual/html_node/Implementing-a-Shell.html
+several http://stackoverflow.com websites
