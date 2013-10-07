@@ -39,6 +39,9 @@ job_t *job_head = NULL;
 /* points to the head of a jobs linked list */
 job_t *last_job = NULL;
 
+/*Determines whether dsh is interactive or not*/
+int dsh_is_interactive;
+
 /* finds and returns a job given a jid*/
 job_t *search_job (int jid);
 
@@ -48,10 +51,26 @@ job_t *search_job_pos (int pos);
 /* Returns the process corresponding to the given id */
 process_t *get_process(int pid);
 
+void add_job(job_t *j);
+
 /* Remove zombies*/
 void remove_zombies();
 
 void io_redirection(process_t *process);
+
+void add_job(job_t *j){
+    if(j!=NULL){
+        if(job_head == NULL) {
+            job_head = j;
+        } else {
+            job_t * current = job_head;
+            while(current->next != NULL){
+                current=current->next;
+            }
+            current->next = j;
+        }
+    }
+}
 
 /* Sets the process group id for a given job and process */
 int set_child_pgid(job_t *j, process_t *p)
@@ -89,7 +108,7 @@ void new_child(job_t *j, process_t *p, bool fg)
     /* Log errors from this child */
     int log = open(LOG_FILENAME, O_CREAT | O_WRONLY | O_APPEND);
     dup2(log, STDERR_FILENO);
-
+    
     
 }
 
@@ -105,15 +124,9 @@ void new_child(job_t *j, process_t *p, bool fg)
 
 void spawn_job(job_t *j, bool fg)
 {
-    if(job_head == NULL) {
-        job_head = j;
-    } else if(last_job!=NULL && last_job->next == NULL)
-        last_job->next = j;
-    last_job = j;
-
 	pid_t pid;
 	process_t *p;
-    
+    add_job(j);
     pipe_t prev_filedes;
     
 	for(p = j->first_process; p; p = p->next) {
@@ -136,28 +149,32 @@ void spawn_job(job_t *j, bool fg)
                 
             case 0: /* child process  */
                 p->pid = getpid();
-                printf("\n%d (Launched): %s\n", p->pid, p->argv[0]);
+                
+                char *msg = malloc(sizeof(p->argv[0])+20);
+                sprintf(msg, "\n%d (Launched): %s\n", p->pid, p->argv[0]);
+                write(STDOUT_FILENO, msg, strlen(msg));
+                
                 /* also establish child process group in child to avoid race (if parent has not done it yet). */
                 set_child_pgid(j, p);
                 DEBUG("%d was assigned a group %d (inside child)", p->pid, j->pgid);
-                //If it has a previous pipe, read input
+                    //If it has a previous pipe, read input
                 if (p != j->first_process) {
                     dup2(prev_filedes[PIPE_READ], STDIN_FILENO);
                     close(prev_filedes[PIPE_READ]);
                     close(prev_filedes[PIPE_WRITE]);
                 }
-                // If it has pipe, open a write end
+                    // If it has pipe, open a write end
                 if (p->next) {
                     dup2(next_filedes[PIPE_WRITE], STDOUT_FILENO);
                     close(next_filedes[PIPE_WRITE]);
                     close(next_filedes[PIPE_READ]);
                 }
-                //If it is the last process, send output to stdout
+                    //If it is the last process, send output to stdout
                 else {
                     DEBUG("last process");
                     dup2(STDOUT_FILENO, next_filedes[PIPE_WRITE]);
                 }
-
+                
                 new_child(j, p, fg);
                 DEBUG("Child process %d detected", p -> pid);
                 io_redirection(p);
@@ -173,7 +190,7 @@ void spawn_job(job_t *j, bool fg)
                 p->pid = pid;
                 set_child_pgid(j, p);
                 
-                //close pipe ends
+                    //close pipe ends
                 if (p->next == NULL) {
                     close(next_filedes[PIPE_READ]);
                 }
@@ -183,7 +200,7 @@ void spawn_job(job_t *j, bool fg)
                 prev_filedes[PIPE_WRITE] = next_filedes[PIPE_WRITE];
                 prev_filedes[PIPE_READ] = next_filedes[PIPE_READ];
         }
-
+        
     }
     
     DEBUG("parent waits until job %d in fg stops or terminates", j->pgid);
@@ -194,7 +211,13 @@ void spawn_job(job_t *j, bool fg)
             if (WIFEXITED(status)){
                 process_t *p = get_process(pid);
                 p->completed = true;
-                printf("%d (Completed): %s\n", pid, p->argv[0]);
+                if (status == EXIT_SUCCESS) {
+                    printf("%d (Completed): %s\n", pid, p->argv[0]);
+                }
+                else {
+                    printf("%d (Failed): %s\n", pid, p->argv[0]);
+                }
+                fflush(stdout);
             }
             else if (WIFSTOPPED(status)) {
                 DEBUG("Process %d stopped", p->pid);
@@ -217,7 +240,7 @@ void spawn_job(job_t *j, bool fg)
             }
         }
     }
-
+    
 }
 
 void io_redirection(process_t *process){
@@ -305,6 +328,7 @@ void compile(process_t *p){
         sprintf(p->argv[0], "./%s", compiled_name);
         free(compiled_name);
         printf("Pointer freed\n");
+        fflush(stdout);
     }
 }
 
@@ -353,6 +377,7 @@ bool builtin_cmd(job_t *last_job, int argc, char **argv){
         }
         
         printf("#Sending job '%s' to background\n", job -> commandinfo);
+        fflush(stdout);
         continue_job(job);
         job->bg = true;
         job->notified = false;
@@ -390,6 +415,7 @@ bool builtin_cmd(job_t *last_job, int argc, char **argv){
         
         
         printf("#Sending job '%s' to foreground\n", job -> commandinfo);
+        fflush(stdout);
         continue_job(job);
         job -> bg = false;
         seize_tty(job->pgid);
@@ -440,6 +466,7 @@ process_t *get_process(int pid) {
 }
 
 char* promptmsg(){
+    if (!dsh_is_interactive) return "";
     sprintf(prompt_msg, "dsh-%d$ ", (int) getpid());
 	return prompt_msg;
 }
@@ -461,6 +488,7 @@ void print_jobs(){
         j = j->next;
         count++;
     }
+    fflush(stdout);
 }
 void logger(int fd, const char *str, ...){
     va_list argptr;
@@ -491,6 +519,7 @@ void logger(int fd, const char *str, ...){
         fprintf(file, "\n");
         printf("\n");
         fclose(file);
+        fflush(stdout);
     }
 }
 
