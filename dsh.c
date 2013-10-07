@@ -54,10 +54,26 @@ job_t *search_job_pos (int pos);
 /* Returns the process corresponding to the given id */
 process_t *get_process(int pid);
 
+void add_job(job_t *j);
+
 /* Remove zombies*/
 void remove_zombies();
 
 void io_redirection(process_t *process);
+
+void add_job(job_t *j){
+    if(j!=NULL){
+        if(job_head == NULL) {
+            job_head = j;
+        } else {
+            job_t * current = job_head;
+            while(current->next != NULL){
+                current=current->next;
+            }
+            current->next = j;
+        }
+    }
+}
 
 /* Sets the process group id for a given job and process */
 int set_child_pgid(job_t *j, process_t *p)
@@ -97,7 +113,7 @@ void new_child(job_t *j, process_t *p, bool fg)
     /* Log errors from this child */
     int log = open(LOG_FILENAME, O_CREAT | O_WRONLY | O_APPEND);
     dup2(log, STDERR_FILENO);
-
+    
     
 }
 
@@ -171,15 +187,9 @@ void remove_zombies() {
 
 void spawn_job(job_t *j, bool fg)
 {
-    if(job_head == NULL) {
-        job_head = j;
-    } else if(last_job!=NULL && last_job->next == NULL)
-        last_job->next = j;
-    last_job = j;
-
 	pid_t pid;
 	process_t *p;
-    
+    add_job(j);
     pipe_t prev_filedes;
     
 	for(p = j->first_process; p; p = p->next) {
@@ -211,14 +221,14 @@ void spawn_job(job_t *j, bool fg)
                 /* also establish child process group in child to avoid race (if parent has not done it yet). */
                 set_child_pgid(j, p);
                 DEBUG("%d was assigned a group %d (inside child)", p->pid, j->pgid);
-                
-                // If it has pipe, open a write end
+
+                    // If it has pipe, open a write end
                 if (p->next) {
                     dup2(next_filedes[PIPE_WRITE], STDOUT_FILENO);
                     close(next_filedes[PIPE_WRITE]);
                     close(next_filedes[PIPE_READ]);
                 }
-                //If it is the last process, send output to stdout
+                    //If it is the last process, send output to stdout
                 else {
                     DEBUG("last process");
                     dup2(STDOUT_FILENO, next_filedes[PIPE_WRITE]);
@@ -245,7 +255,7 @@ void spawn_job(job_t *j, bool fg)
                 p->pid = pid;
                 set_child_pgid(j, p);
                 
-                //close pipe ends
+                    //close pipe ends
                 if (p->next == NULL) {
                     close(next_filedes[PIPE_READ]);
                 }
@@ -255,22 +265,23 @@ void spawn_job(job_t *j, bool fg)
                 prev_filedes[PIPE_WRITE] = next_filedes[PIPE_WRITE];
                 prev_filedes[PIPE_READ] = next_filedes[PIPE_READ];
         }
-        
-        if(fg){
-            DEBUG("parent is waiting for child");
-            int status, pid;
-            while((pid = waitpid(WAIT_ANY, &status, WUNTRACED)) > 0){
-                if (WIFEXITED(status)){
-                    process_t *p = get_process(pid);
-                    p->completed = true;
-                    if (status == EXIT_SUCCESS) {
-                        printf("%d (Completed): %s\n", pid, p->argv[0]);
-                    }
-                    else {
-                        printf("%d (Failed): %s\n", pid, p->argv[0]);
-                    }
-                    fflush(stdout);
+    }
+    
+    if(fg){
+        DEBUG("parent is waiting for child");
+        int status, pid;
+        while((pid = waitpid(WAIT_ANY, &status, WUNTRACED)) > 0){
+            if (WIFEXITED(status)){
+                process_t *p = get_process(pid);
+                p->completed = true;
+                if (status == EXIT_SUCCESS) {
+                    printf("%d (Completed): %s\n", pid, p->argv[0]);
                 }
+                else {
+                    printf("%d (Failed): %s\n", pid, p->argv[0]);
+                }
+                fflush(stdout);
+            }
                 else if (WIFSTOPPED(status)) {
                     DEBUG("Process %d stopped", p->pid);
                     if (kill (-j->pgid, SIGSTOP) < 0) {
@@ -292,8 +303,7 @@ void spawn_job(job_t *j, bool fg)
                 }
             }
         }
-
-    }
+    
 }
 
 void io_redirection(process_t *process){

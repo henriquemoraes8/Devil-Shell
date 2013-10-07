@@ -6,17 +6,13 @@
  * Team Info & Time spent
  *************************/
 
-	Name1: Full Name 	// Edit this accordingly
-	NetId1: fn	 	// Edit
-	Time spent: 10 hours 	// Edit 
+	Name1: Henrique Moraes 	
+	NetId1: hrm8	 	
+	Time spent: 25 hours 	 
 
-	Name2: Full Name 	// Edit this accordingly
-	NetId2: fn	 	// Edit
-	Time spent: 10 hours 	// Edit 
-
-	Name3: Full Name 	// Edit this accordingly
-	NetId3: fn	 	// Edit
-	Time spent: 10 hours 	// Edit 
+	Name2: Elder Yoshida
+	NetId2: emy2 	
+	Time spent: 25 hours 	
 
 /******************
  * Files to submit
@@ -45,6 +41,34 @@
  * In case of lab is limited in some functionality, you should provide the
  * details to maximize your partial credit.  
  * */
+
+After the devil shell initializes it runs a loop to iterate through the list of jobs. The variable called job_head is the pointer to the first job in the sequence. 
+The shell first checks for built-in commands:
+
+cd: A simple change of directory. Implemented with chdir function
+jobs: It first tries to reap any terminated job. Then it check for the statuses of 
+the jobs and logs them into a .log file.
+bg: Performs a standard error checking first for any possible error 
+that might occur (e.g. wrong arguments, or job specified is wrong) and then continues
+the job without seizing the tty.
+fg: Performs a standard error checking first for any possible error 
+that might occur (e.g. wrong arguments, or job specified is wrong)and then continues
+the job seizing the tty and making the shell wait for the job to finish.
+
+Note that a method 'logger' was created to log any informative message to a .log file
+in order to troubleshoot the program. The logger accepts an unformatted string with 
+its arguments along with the proper output format, such as STDERR_FILENO for errors or STDOUT_FILENO for regular messages.
+
+If none of the build in commands corresponds to the current job, the dsh calls spawn_job.
+It first iterates through the processes in the job and forks each of them for future
+execution. On the child side, piping and output redirection is established (if necessary)
+before executing the program. For piping, two pipes are used. The first is assumed to
+be before the current process. If the process has a previous pipe, then the reading end
+of the pipe is duped to the input of the process. If the process has a following pipe, 
+the write end of the pipe is duped so the process direct its output to the pipe. If the 
+process is the last process, it transfers the output of the pipe back to stdout.
+
+
 
 /************************
  * Feedback on the lab
