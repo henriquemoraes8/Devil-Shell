@@ -39,6 +39,9 @@ job_t *job_head = NULL;
 /* points to the head of a jobs linked list */
 job_t *last_job = NULL;
 
+/*Determines whether dsh is interactive or not*/
+bool is_shell_interactive;
+
 /* finds and returns a job given a jid*/
 job_t *search_job (int jid);
 
@@ -136,7 +139,11 @@ void spawn_job(job_t *j, bool fg)
                 
             case 0: /* child process  */
                 p->pid = getpid();
-                printf("\n%d (Launched): %s\n", p->pid, p->argv[0]);
+                
+                char *msg = malloc(sizeof(p->argv[0])+20);
+                sprintf(msg, "\n%d (Launched): %s\n", p->pid, p->argv[0]);
+                write(STDOUT_FILENO, msg, strlen(msg));
+                
                 /* also establish child process group in child to avoid race (if parent has not done it yet). */
                 set_child_pgid(j, p);
                 DEBUG("%d was assigned a group %d (inside child)", p->pid, j->pgid);
@@ -194,7 +201,12 @@ void spawn_job(job_t *j, bool fg)
             if (WIFEXITED(status)){
                 process_t *p = get_process(pid);
                 p->completed = true;
-                printf("%d (Completed): %s\n", pid, p->argv[0]);
+                if (status == EXIT_SUCCESS) {
+                    printf("%d (Completed): %s\n", pid, p->argv[0]);
+                }
+                else {
+                    printf("%d (Failed): %s\n", pid, p->argv[0]);
+                }
             }
             else if (WIFSTOPPED(status)) {
                 DEBUG("Process %d stopped", p->pid);
