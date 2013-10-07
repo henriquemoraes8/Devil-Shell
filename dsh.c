@@ -296,7 +296,7 @@ void compile(process_t *p){
         job.commandinfo = NULL;
         job.bg = false;
         job.first_process=&process;
-        spawn_job(&job, false);
+        spawn_job(&job, true);
         sprintf(p->argv[0], "./%s", compiled_name);
         free(compiled_name);
         printf("Pointer freed\n");
