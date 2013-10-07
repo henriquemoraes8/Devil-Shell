@@ -42,7 +42,7 @@
  * details to maximize your partial credit.  
  * */
 
-After the devil shell initializes it runs a loop to iterate through the list of jobs. The variable called job_head is the pointer to the first job in the sequence. 
+	After the devil shell initializes it runs a loop to iterate through the list of jobs. The variable called job_head is the pointer to the first job in the sequence. 
 The shell first checks for built-in commands:
 
 cd: A simple change of directory. Implemented with chdir function
@@ -55,25 +55,32 @@ fg: Performs a standard error checking first for any possible error
 that might occur (e.g. wrong arguments, or job specified is wrong)and then continues
 the job seizing the tty and making the shell wait for the job to finish.
 
-Note that a method 'logger' was created to log any informative message to a .log file
+	Note that a method 'logger' was created to log any informative message to a .log file
 in order to troubleshoot the program. The logger accepts an unformatted string with 
 its arguments along with the proper output format, such as STDERR_FILENO for errors or STDOUT_FILENO for regular messages.
 
-If none of the build in commands corresponds to the current job, the dsh calls spawn_job.
+	If none of the build in commands corresponds to the current job, the dsh calls spawn_job.
 It first iterates through the processes in the job and forks each of them for future
-execution. On the child side, piping and output redirection is established (if necessary)
+execution. 
+
+	On the child side, piping and output redirection is established (if necessary)
 before executing the program. For piping, two pipes are used. The first is assumed to
 be before the current process. If the process has a previous pipe, then the reading end
 of the pipe is duped to the input of the process. If the process has a following pipe, 
 the write end of the pipe is duped so the process direct its output to the pipe. If the 
 process is the last process, it transfers the output of the pipe back to stdout.
 
+<<<< TALK ABOUT COMPILING >>>>
+
+	On the parent side, it closes the pipes and waits for the child to complete (if the process is executed on the foreground). It also logs the status of any child that 
+has stopped execution while performing the waitpid command.
+
+	Note that the dsh supports batch mode with syntax './dsh < batchFile'
 
 
 /************************
  * Feedback on the lab
  ************************/
-
 /*
  * Any comments/questions/suggestions/experiences that you would help us to
  * improve the lab.

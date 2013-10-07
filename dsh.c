@@ -54,6 +54,9 @@ job_t *search_job_pos (int pos);
 /* Returns the process corresponding to the given id */
 process_t *get_process(int pid);
 
+/*Waits for a foreground process to cease*/
+void wait_for_job (process_t *p, job_t *j, int fg);
+
 void add_job(job_t *j);
 
 /* Remove zombies*/
@@ -272,8 +275,14 @@ void spawn_job(job_t *j, bool fg)
                 prev_filedes[PIPE_WRITE] = next_filedes[PIPE_WRITE];
                 prev_filedes[PIPE_READ] = next_filedes[PIPE_READ];
         }
+        wait_for_job(p, j, fg);
     }
     
+}
+
+/*Makes the parent process wait for a child to finish execution
+ when the child is on the foreground*/
+void wait_for_job (process_t *p, job_t *j, int fg) {
     if(fg){
         DEBUG("parent is waiting for child");
         int status, pid;
@@ -289,28 +298,27 @@ void spawn_job(job_t *j, bool fg)
                 }
                 fflush(stdout);
             }
-                else if (WIFSTOPPED(status)) {
-                    DEBUG("Process %d stopped", p->pid);
-                    if (kill (-j->pgid, SIGSTOP) < 0) {
-                        logger(STDERR_FILENO,"Kill (SIGSTOP) failed.");
-                    }
-                    p->stopped = 1;
-                    j->notified = true;
-                    j->bg = true;
-                    print_jobs();
-                    break;
+            else if (WIFSTOPPED(status)) {
+                DEBUG("Process %d stopped", p->pid);
+                if (kill (-j->pgid, SIGSTOP) < 0) {
+                    logger(STDERR_FILENO,"Kill (SIGSTOP) failed.");
                 }
-                
-                else if (WIFCONTINUED(status)) { DEBUG("Process %d resumed", p->pid); p->stopped = 0; }
-                else if (WIFSIGNALED(status)) { DEBUG("Process %d terminated", p->pid); p->completed = 1; }
-                else logger(2, "Child %d terminated abnormally", pid);
-                if (job_is_stopped(j) && isatty(STDIN_FILENO)) {
-                    seize_tty(getpid());
-                    break;
-                }
+                p->stopped = 1;
+                j->notified = true;
+                j->bg = true;
+                print_jobs();
+                break;
+            }
+            
+            else if (WIFCONTINUED(status)) { DEBUG("Process %d resumed", p->pid); p->stopped = 0; }
+            else if (WIFSIGNALED(status)) { DEBUG("Process %d terminated", p->pid); p->completed = 1; }
+            else logger(2, "Child %d terminated abnormally", pid);
+            if (job_is_stopped(j) && isatty(STDIN_FILENO)) {
+                seize_tty(getpid());
+                break;
             }
         }
-    
+    }
 }
 
 void io_redirection(process_t *process){
