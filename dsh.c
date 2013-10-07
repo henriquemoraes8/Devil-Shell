@@ -14,7 +14,7 @@ static const char *LOG_FILENAME = "dsh.log";
 static const int PIPE_READ = 0;
 static const int PIPE_WRITE = 1;
 
-typedef int pipe_t[2]; /* Defines a pipe */
+typedef int Pipe[2]; /* Defines a pipe */
 
 /* resume a stopped job */
 void continue_job(job_t *j);
@@ -41,7 +41,7 @@ job_t *search_j (int jid);
 process_t *get_process(int pid);
 
 static void exec_nth_command(process_t *process);
-void exec_pipe_command(job_t *job, process_t *process, pipe_t output);
+void exec_pipe_command(job_t *job, process_t *process, Pipe output);
 void io_redirection(process_t *process);
 
 /* Sets the process group id for a given job and process */
@@ -76,20 +76,12 @@ void new_child(job_t *j, process_t *p, bool fg)
     /* also establish child process group in child to avoid race (if parent has not done it yet). */
     set_child_pgid(j, p);
     
-    /* Set the handling for job control signals back to the default.
-    signal (SIGINT, SIG_DFL);
-    signal (SIGQUIT, SIG_DFL);
-    signal (SIGTSTP, SIG_DFL);
-    signal (SIGTTIN, SIG_DFL);
-    signal (SIGTTOU, SIG_DFL);
-    signal (SIGCHLD, SIG_DFL);
-     */
+    /* Set the handling for job control signals back to the default. */
+    signal(SIGTTOU, SIG_DFL);
     
     /* Log errors from this child */
     int log = open(LOG_FILENAME, O_CREAT | O_WRONLY | O_APPEND);
     dup2(log, STDERR_FILENO);
-    close (log);
-    
     
 }
 
@@ -103,23 +95,25 @@ void new_child(job_t *j, process_t *p, bool fg)
  * subsequent processes in a pipeline.
  * */
 
-void spawn_job(job_t *j, bool fg){
+void spawn_job(job_t *j, bool fg)
+{
+    
 	pid_t pid;
 	process_t *p;
-    pipe_t j_pipe; //job pipe
+    
+    Pipe prev_filedes;
     
 	for(p = j->first_process; p; p = p->next) {
         
-        /* Ingore empty process*/
         if(p->argv[0] == NULL){
             continue;
         }
         
-        /* set up pipes if necessary */
-        if(p->next != NULL){
-            if (pipe(j_pipe) < 0) {
-                logger(STDERR_FILENO, "Failed to create pipe");
-            }
+        Pipe next_filedes;
+        
+        if (pipe(next_filedes) < 0) {
+            logger(STDERR_FILENO, "Failed to create pipe");
+                //TODO log message
         }
         
         switch (pid = fork()) {
@@ -132,34 +126,23 @@ void spawn_job(job_t *j, bool fg){
                 /* also establish child process group in child to avoid race (if parent has not done it yet). */
                 set_child_pgid(j, p);
                 DEBUG("%d was assigned a group %d (inside child)", p->pid, j->pgid);
-                
-                if (p == j->first_process && p->next != NULL) { //First pipe
-                    close(j_pipe[PIPE_READ]);
-                    dup2(j_pipe[PIPE_WRITE], STDOUT_FILENO); //jpipe gets stdout
-                    close(j_pipe[PIPE_WRITE]);
-                }  else if (p->next != NULL) {
-                    close(j_pipe[PIPE_WRITE]);
-                    dup2(j_pipe[PIPE_WRITE], STDOUT_FILENO);
-                    dup2(j_pipe[PIPE_READ], STDIN_FILENO);
-                } else {
-                    printf("got here");
-                    dup2(1, j_pipe[1]);
-                }
-                
-                /* If it has pipe, open a write end and direct the output to the new pipe */
-                /*
-                 else {
-                        //If it is the last process, send output to stdout
-                    DEBUG("last process");
-                    dup2(STDOUT_FILENO, next_filedes[PIPE_WRITE]);
-                        //dup2(prev_filedes[PIPE_READ], STDIN_FILENO);
-                    
-                        //dup2(next_filedes[PIPE_READ], STDIN_FILENO);
+                    // If it has pipe, open a write end
+                if (p->next) {
+                    dup2(next_filedes[PIPE_WRITE], STDOUT_FILENO);
                     close(next_filedes[PIPE_WRITE]);
                     close(next_filedes[PIPE_READ]);
                 }
-                */
-                
+                    //If it is the last process, send output to stdout
+                else {
+                    DEBUG("last process");
+                    dup2(STDOUT_FILENO, next_filedes[PIPE_WRITE]);
+                }
+                    //If it has a previous pipe, read input
+                if (p != j->first_process) {
+                    dup2(prev_filedes[PIPE_READ], STDIN_FILENO);
+                    close(prev_filedes[PIPE_READ]);
+                    close(prev_filedes[PIPE_WRITE]);
+                }
                 printf("\n%d (Launched): %s\n", p->pid, p->argv[0]);
                 new_child(j, p, fg);
                 DEBUG("Child process %d detected", p -> pid);
@@ -174,22 +157,16 @@ void spawn_job(job_t *j, bool fg){
                 
                     //close pipe ends
                 if (p->next == NULL) {
-                    close(j_pipe[PIPE_WRITE]);
-                
-                close(j_pipe[PIPE_READ]);
+                    close(next_filedes[PIPE_WRITE]);
+                }
+                close(next_filedes[PIPE_READ]);
                 
                 p->pid = pid;
                 set_child_pgid(j, p);
-                /*
+                
                     //The next pipe becomes the previous one
-                prev_filedes[PIPE_WRITE] = next_filedes[PIPE_READ];
-                    //prev_filedes[PIPE_READ] = next_filedes[PIPE_WRITE];
-                printf("assigning: The nextPipe is: %d, %d\n", next_filedes[0], next_filedes[1]);
-                printf("assigning: The prevPipe is %d, %d\n", prev_filedes[0], prev_filedes[1]);
-                 */
-                    close(j_pipe[PIPE_WRITE]);
-                    dup2(j_pipe[PIPE_READ], 0);
-                    close(j_pipe[PIPE_READ]);
+                prev_filedes[PIPE_WRITE] = next_filedes[PIPE_WRITE];
+                next_filedes[PIPE_READ] = next_filedes[PIPE_READ];
         }
         
         /* YOUR CODE HERE?  Parent-side code for new job.*/
@@ -198,7 +175,7 @@ void spawn_job(job_t *j, bool fg){
             int status, pid;
             while((pid = waitpid(WAIT_ANY, &status, WUNTRACED)) > 0){
                 if (WIFEXITED(status)){
-                    process_t *p = get_process(pid);
+                        process_t *p = get_process(pid);
                     printf("%d (Completed): %s\n", pid, p->argv[0]);
                 }
                 else
@@ -235,7 +212,7 @@ void io_redirection(process_t *process){
 }
 
 /* Given pipe, plumb it to standard output, then execute Nth command */
-void exec_pipe_command(job_t *job, process_t *process, pipe_t output){
+void exec_pipe_command(job_t *job, process_t *process, Pipe output){
     /* Fix stdout to write end of pipe */
     dup2(output[1], 1);
     close(output[0]);
@@ -243,7 +220,7 @@ void exec_pipe_command(job_t *job, process_t *process, pipe_t output){
     if (process -> argc > 1)
         {
         pid_t pid;
-        pipe_t input;
+        Pipe input;
         if (pipe(input) != 0)
             perror("Error: Failed to create pipe");
         if ((pid = fork()) < 0)
