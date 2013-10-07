@@ -70,7 +70,7 @@ of the pipe is duped to the input of the process. If the process has a following
 the write end of the pipe is duped so the process direct its output to the pipe. If the 
 process is the last process, it transfers the output of the pipe back to stdout.
 
-<<<< TALK ABOUT COMPILING >>>>
+	The compiler has been implemented as the first feature of this laboratory exercise. The compiler first reads the command int he process and identifies the extension .c or .cpp, which in turn directs it to the right compiler and generates the right args. Since the compilation must occur before the execution of the compiled program, a child-parent relation can be implemented in this scenario. A fork is called and the child executes the compilation, then the parent calls a job for running the recently compiled program.
 
 	On the parent side, it closes the pipes and waits for the child to complete (if the process is executed on the foreground) after each iteration. It also logs the status of any child that has stopped execution while performing the waitpid command.
 

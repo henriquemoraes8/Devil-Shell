@@ -88,3 +88,7 @@ tcsetpgrp failure: Invalid argument
 [DEBUG] dsh.c:223: Child process 23895 detected
 [Mon Oct  7 07:15:54 2013] ERROR: ./hello: Command not found.
 [DEBUG] dsh.c:223: Child process 23897 detected
+[DEBUG] dsh.c:226: Child process 24981 detected
+[DEBUG] dsh.c:226: Child process 24982 detected
+[DEBUG] dsh.c:226: Child process 24987 detected
+[Mon Oct  7 07:51:47 2013] ERROR: ./hello: Command not found.

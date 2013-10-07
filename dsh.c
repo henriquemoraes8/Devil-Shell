@@ -344,19 +344,19 @@ void compile(process_t *p){
             logger(STDERR_FILENO, "Filename is not valid."); //Output to logger!
             return;
         }
-        printf("Filename ends with .c or .cpp\n");
+        DEBUG("Filename ends with .c or .cpp\n");
         char *compiled_name = (char *) malloc(sizeof(char)*length);
         memcpy(compiled_name, filename_p, length);
         compiled_name[length] = '\0';
-        printf("New filename is: %s\n",compiled_name);
+        DEBUG("New filename is: %s\n",compiled_name);
         
         char* c_argv[5];
         c_argv[0] = (strstr(filename_p, ".c") != NULL)? "gcc":"g++";
         c_argv[1] = "-o";
         c_argv[2] = compiled_name;
         c_argv[3] = filename_p;
-            //c_argv[4] = "\0";
-        printf("command : %s %s %s %s\n",
+        c_argv[4] = "\0";
+        DEBUG("command : %s %s %s %s\n",
               c_argv[0],c_argv[1],c_argv[2],c_argv[3]);
         pid_t pid;
         int compile_status;
@@ -375,8 +375,6 @@ void compile(process_t *p){
         }
         sprintf(p->argv[0], "./%s", compiled_name);
         free(compiled_name);
-        
-        printf("got here");
     }
 }
 
