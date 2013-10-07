@@ -51,8 +51,6 @@ process_t *get_process(int pid);
 /* Remove zombies*/
 void remove_zombies();
 
-static void exec_nth_command(process_t *process);
-void exec_pipe_command(job_t *job, process_t *process, pipe_t output);
 void io_redirection(process_t *process);
 
 /* Sets the process group id for a given job and process */
@@ -91,8 +89,8 @@ void new_child(job_t *j, process_t *p, bool fg)
     signal(SIGTTOU, SIG_DFL);
     
     /* Log errors from this child */
-    //int log = open(LOG_FILENAME, O_CREAT | O_WRONLY | O_APPEND);
-    //dup2(log, STDERR_FILENO);
+    int log = open(LOG_FILENAME, O_CREAT | O_WRONLY | O_APPEND);
+    dup2(log, STDERR_FILENO);
 
     
 }
@@ -138,30 +136,31 @@ void spawn_job(job_t *j, bool fg)
                 /* also establish child process group in child to avoid race (if parent has not done it yet). */
                 set_child_pgid(j, p);
                 DEBUG("%d was assigned a group %d (inside child)", p->pid, j->pgid);
-                    // If it has pipe, open a write end
-                if (p->next) {
-                    dup2(next_filedes[PIPE_WRITE], STDOUT_FILENO);
-                    close(next_filedes[PIPE_WRITE]);
-                    close(next_filedes[PIPE_READ]);
-                }
-                    //If it is the last process, send output to stdout
-                else {
-                    DEBUG("last process");
-                    dup2(STDOUT_FILENO, next_filedes[PIPE_WRITE]);
-                }
-                    //If it has a previous pipe, read input
+                //If it has a previous pipe, read input
                 if (p != j->first_process) {
                     dup2(prev_filedes[PIPE_READ], STDIN_FILENO);
                     close(prev_filedes[PIPE_READ]);
                     close(prev_filedes[PIPE_WRITE]);
                 }
+                // If it has pipe, open a write end
+                if (p->next) {
+                    dup2(next_filedes[PIPE_WRITE], STDOUT_FILENO);
+                    close(next_filedes[PIPE_WRITE]);
+                    close(next_filedes[PIPE_READ]);
+                }
+                //If it is the last process, send output to stdout
+                else {
+                    DEBUG("last process");
+                    dup2(STDOUT_FILENO, next_filedes[PIPE_WRITE]);
+                }
+
                 
                 printf("\n%d (Launched): %s\n", p->pid, p->argv[0]);
                 new_child(j, p, fg);
                 DEBUG("Child process %d detected", p -> pid);
-                //io_redirection(p);
+                io_redirection(p);
                 DEBUG("Compiling if necessary");
-                //compile(p);
+                compile(p);
                 DEBUG("Executing child process");
                 exec(p);
                 
