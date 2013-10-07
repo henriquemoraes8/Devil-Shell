@@ -173,68 +173,52 @@ void spawn_job(job_t *j, bool fg)
                 
                 //close pipe ends
                 if (p->next == NULL) {
-                    close(next_filedes[PIPE_WRITE]);
+                    close(next_filedes[PIPE_READ]);
                 }
-                close(next_filedes[PIPE_READ]);
+                close(next_filedes[PIPE_WRITE]);
                 
                     //The next pipe becomes the previous one
                 prev_filedes[PIPE_WRITE] = next_filedes[PIPE_WRITE];
-                next_filedes[PIPE_READ] = next_filedes[PIPE_READ];
-            
+                prev_filedes[PIPE_READ] = next_filedes[PIPE_READ];
         }
-        
-        /* YOUR CODE HERE?  Parent-side code for new job.*/
-        int status, wpid;
-        DEBUG("parent waits until job %d in fg stops or terminates", j->pgid);
-        while ((wpid = waitpid(WAIT_ANY, &status, WUNTRACED)) > 0) {
-            DEBUG("child %d exited with status %d, j->pgid: %d", wpid, status, j->pgid);
-            //update_process_status(find_process_by_id(pid), status);
-            // seize terminal only when fg job is stopped and dsh is running in terminal
-            if (job_is_stopped(j) && isatty(STDIN_FILENO)) {
-                DEBUG("dsh grabbing the terminal back");
-                seize_tty(getpid());
-                break;
-            }
-        }
-        DEBUG("parent done with fg job %d", j->pgid);
-        /* YOUR CODE HERE?  Parent-side code for new job.*/
 
     }
     
     DEBUG("parent waits until job %d in fg stops or terminates", j->pgid);
-//    
-//    if(fg){
-//        int status, pid;
-//        while((pid = waitpid(WAIT_ANY, &status, WUNTRACED)) > 0){
-//            if (WIFEXITED(status)){
-//                process_t *p = get_process(pid);
-//                p->completed = true;
-//                printf("%d (Completed): %s\n", pid, p->argv[0]);
-//            }
-//            else if (WIFSTOPPED(status)) {
-//                DEBUG("Process %d stopped", p->pid);
-//                if (kill (-j->pgid, SIGSTOP) < 0) {
-//                    logger(STDERR_FILENO,"Kill (SIGSTOP) failed.");
-//                }
-//                p->stopped = 1;
-//                j->notified = true;
-//                j->bg = true;
-//                print_jobs();
-//                break;
-//            }
-//            
-//            else if (WIFCONTINUED(status)) { DEBUG("Process %d resumed", p->pid); p->stopped = 0; }
-//            else if (WIFSIGNALED(status)) { DEBUG("Process %d terminated", p->pid); p->completed = 1; }
-//            else logger(2, "Child %d terminated abnormally", pid);
-//            DEBUG("Check seize job stopped is %d", job_is_stopped(j));
-//            if (job_is_stopped(j) && isatty(STDIN_FILENO)) {
-//                seize_tty(getpid());
-//                break;
-//            }
-//        }
-//    }
+    
+    if(fg){
+        int status, pid;
+        while((pid = waitpid(WAIT_ANY, &status, WUNTRACED)) > 0){
+            if (WIFEXITED(status)){
+                process_t *p = get_process(pid);
+                p->completed = true;
+                printf("%d (Completed): %s\n", pid, p->argv[0]);
+            }
+            else if (WIFSTOPPED(status)) {
+                DEBUG("Process %d stopped", p->pid);
+                if (kill (-j->pgid, SIGSTOP) < 0) {
+                    logger(STDERR_FILENO,"Kill (SIGSTOP) failed.");
+                }
+                p->stopped = 1;
+                j->notified = true;
+                j->bg = true;
+                print_jobs();
+                break;
+            }
+            
+            else if (WIFCONTINUED(status)) { DEBUG("Process %d resumed", p->pid); p->stopped = 0; }
+            else if (WIFSIGNALED(status)) { DEBUG("Process %d terminated", p->pid); p->completed = 1; }
+            else logger(2, "Child %d terminated abnormally", pid);
+            DEBUG("Check seize job stopped is %d", job_is_stopped(j));
+            if (job_is_stopped(j) && isatty(STDIN_FILENO)) {
+                seize_tty(getpid());
+                break;
+            }
+        }
+    }
 
 }
+
 
 void wait_fg_job_to_exit(job_t *j) { // dsh waits for fg job to exit and grabs the terminal
     int status, pid;
@@ -540,28 +524,28 @@ int main(){
             }
 			continue; /* NOOP; user entered return or spaces with return */
 		}
-        if(job_head == NULL){
-            job_head = j;
-            last_job = j;
+        if(j!=NULL){
+            if(job_head == NULL)
+                job_head = j;
+            if(last_job != NULL)
+                last_job->next = j;
         }
         /* Only for debugging purposes to show parser output; turn off in the
          * final code */
         if(PRINT_INFO) print_job(j);
-        
         /* Your code goes here */
         /* You need to loop through jobs list since a command line can contain ;*/
         while(j!= NULL){
+            last_job = j;
             /* Check for built-in commands */
             int argc = j->first_process->argc;
             char **argv = j->first_process->argv;
-            
             if(!builtin_cmd(j, argc, argv)){
                 DEBUG("***going to spawn job***");
                 spawn_job(j,!(j->bg));
             }
-            
             j = j->next;
-            last_job = j;
+            
         }
         
     }

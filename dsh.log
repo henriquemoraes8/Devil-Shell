@@ -356,4 +356,38 @@ dsh.c:51: warning: ‘exec_nth_command’ declared ‘static’ but never define
 [DEBUG] dsh.c:159: Child process 39766 detected
 [DEBUG] dsh.c:161: Compiling if necessary
 [DEBUG] dsh.c:163: Executing child process
+<<<<<<< HEAD
 >>>>>>> 278d79a9f46c07c83aab7298fc2514f381b7e751
+=======
+[DEBUG] dsh.c:159: Child process 40041 detected
+[DEBUG] dsh.c:161: Compiling if necessary
+[DEBUG] dsh.c:163: Executing child process
+dsh.c:54: warning: ‘exec_nth_command’ declared ‘static’ but never defined
+[DEBUG] dsh.c:159: Child process 40060 detected
+[DEBUG] dsh.c:161: Compiling if necessary
+[DEBUG] dsh.c:163: Executing child process
+[DEBUG] dsh.c:159: Child process 43535 detected
+[DEBUG] dsh.c:161: Compiling if necessary
+[DEBUG] dsh.c:163: Executing child process
+[DEBUG] dsh.c:159: Child process 45087 detected
+[DEBUG] dsh.c:161: Compiling if necessary
+[DEBUG] dsh.c:163: Executing child process
+[DEBUG] dsh.c:159: Child process 49956 detected
+[DEBUG] dsh.c:161: Compiling if necessary
+[DEBUG] dsh.c:163: Executing child process
+[DEBUG] dsh.c:159: Child process 49961 detected
+[DEBUG] dsh.c:161: Compiling if necessary
+[DEBUG] dsh.c:163: Executing child process
+[DEBUG] dsh.c:159: Child process 49997 detected
+[DEBUG] dsh.c:161: Compiling if necessary
+[DEBUG] dsh.c:163: Executing child process
+[DEBUG] dsh.c:159: Child process 49998 detected
+[DEBUG] dsh.c:161: Compiling if necessary
+[DEBUG] dsh.c:163: Executing child process
+[DEBUG] dsh.c:159: Child process 49999 detected
+[DEBUG] dsh.c:161: Compiling if necessary
+[DEBUG] dsh.c:163: Executing child process
+[DEBUG] dsh.c:159: Child process 50001 detected
+[DEBUG] dsh.c:161: Compiling if necessary
+[DEBUG] dsh.c:163: Executing child process
+>>>>>>> 7eff753c91455d9578ea0404b72f5ae2701d2289
