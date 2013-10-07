@@ -453,7 +453,6 @@ char* promptmsg(){
 void print_jobs(){
     job_t *j = job_head;
     int count = 1;
-    printf("Processes in the background: \n");
     while(j!=NULL){
         printf("[%d]", count);
         if(j->bg)

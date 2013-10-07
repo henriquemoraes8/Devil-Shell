@@ -259,3 +259,31 @@ dsh.c:45: warning: ‘exec_nth_command’ declared ‘static’ but never define
 [DEBUG] dsh.c:157: Executing child process
 [Sun Oct  6 23:35:44 2013] ERROR: Error: invalid arguments for bg command
 [Sun Oct  6 23:35:54 2013] ERROR: The job is already in foreground.
+[DEBUG] dsh.c:153: Child process 25490 detected
+[DEBUG] dsh.c:155: Compiling if necessary
+[DEBUG] dsh.c:157: Executing child process
+[DEBUG] dsh.c:153: Child process 25492 detected
+[DEBUG] dsh.c:155: Compiling if necessary
+[DEBUG] dsh.c:157: Executing child process
+[DEBUG] dsh.c:153: Child process 25633 detected
+[DEBUG] dsh.c:155: Compiling if necessary
+[DEBUG] dsh.c:157: Executing child process
+dsh.c:51: warning: ‘exec_nth_command’ declared ‘static’ but never defined
+[DEBUG] dsh.c:153: Child process 25651 detected
+[DEBUG] dsh.c:155: Compiling if necessary
+[DEBUG] dsh.c:157: Executing child process
+[DEBUG] dsh.c:159: Child process 25805 detected
+[DEBUG] dsh.c:161: Compiling if necessary
+[DEBUG] dsh.c:163: Executing child process
+[DEBUG] dsh.c:159: Child process 25838 detected
+[DEBUG] dsh.c:161: Compiling if necessary
+[DEBUG] dsh.c:163: Executing child process
+[DEBUG] dsh.c:159: Child process 25868 detected
+[DEBUG] dsh.c:161: Compiling if necessary
+[DEBUG] dsh.c:163: Executing child process
+[DEBUG] dsh.c:159: Child process 26022 detected
+[DEBUG] dsh.c:161: Compiling if necessary
+[DEBUG] dsh.c:163: Executing child process
+[DEBUG] dsh.c:153: Child process 26051 detected
+[DEBUG] dsh.c:155: Compiling if necessary
+[DEBUG] dsh.c:157: Executing child process
