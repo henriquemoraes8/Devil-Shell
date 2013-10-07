@@ -180,3 +180,82 @@ dsh.c:43: warning: ‘exec_nth_command’ declared ‘static’ but never define
 [DEBUG] dsh.c:149: Executing child process
 [DEBUG] dsh.c:148: Child process 16478 detected
 [DEBUG] dsh.c:149: Executing child process
+[DEBUG] dsh.c:148: Child process 23038 detected
+[DEBUG] dsh.c:150: Compiling if necessary
+[DEBUG] dsh.c:152: Executing child process
+[DEBUG] dsh.c:150: Child process 23229 detected
+[DEBUG] dsh.c:152: Compiling if necessary
+[DEBUG] dsh.c:154: Executing child process
+[DEBUG] dsh.c:150: Child process 23397 detected
+[DEBUG] dsh.c:152: Compiling if necessary
+[DEBUG] dsh.c:154: Executing child process
+i686-apple-darwin11-llvm-gcc-4.2: no input files
+[DEBUG] dsh.c:150: Child process 23403 detected
+[DEBUG] dsh.c:152: Compiling if necessary
+[DEBUG] dsh.c:154: Executing child process
+[Sun Oct  6 22:13:10 2013] ERROR: aDadsasd: Command not found.
+[DEBUG] dsh.c:150: Child process 23405 detected
+[DEBUG] dsh.c:152: Compiling if necessary
+[DEBUG] dsh.c:154: Executing child process
+[DEBUG] dsh.c:150: Child process 23406 detected
+[DEBUG] dsh.c:152: Compiling if necessary
+[DEBUG] dsh.c:154: Executing child process
+[Sun Oct  6 22:13:23 2013] ERROR: asdfasdf: Command not found.
+[DEBUG] dsh.c:150: Child process 23409 detected
+[DEBUG] dsh.c:152: Compiling if necessary
+[DEBUG] dsh.c:154: Executing child process
+[Sun Oct  6 22:18:00 2013] ERROR: Error: invalid arguments for directory change
+[DEBUG] dsh.c:150: Child process 23462 detected
+[DEBUG] dsh.c:152: Compiling if necessary
+[DEBUG] dsh.c:154: Executing child process
+[Sun Oct  6 22:39:32 2013] ERROR: Error: invalid arguments for bg command
+[Sun Oct  6 22:40:02 2013] ERROR: Error: invalid arguments for bg command
+[Sun Oct  6 22:40:20 2013] ERROR: Error: invalid arguments for bg command
+[DEBUG] dsh.c:150: Child process 24085 detected
+[DEBUG] dsh.c:152: Compiling if necessary
+[DEBUG] dsh.c:154: Executing child process
+[DEBUG] dsh.c:150: Child process 24087 detected
+[DEBUG] dsh.c:152: Compiling if necessary
+[DEBUG] dsh.c:154: Executing child process
+[Sun Oct  6 22:55:01 2013] ERROR: Child 24087 terminated abnormally
+[DEBUG] dsh.c:150: Child process 24241 detected
+[DEBUG] dsh.c:152: Compiling if necessary
+[DEBUG] dsh.c:154: Executing child process
+[DEBUG] dsh.c:150: Child process 24243 detected
+[DEBUG] dsh.c:152: Compiling if necessary
+[DEBUG] dsh.c:154: Executing child process
+[DEBUG] dsh.c:150: Child process 24249 detected
+[DEBUG] dsh.c:152: Compiling if necessary
+[DEBUG] dsh.c:154: Executing child process
+[DEBUG] dsh.c:150: Child process 24255 detected
+[DEBUG] dsh.c:152: Compiling if necessary
+[DEBUG] dsh.c:154: Executing child process
+[DEBUG] dsh.c:150: Child process 24438 detected
+[DEBUG] dsh.c:152: Compiling if necessary
+[DEBUG] dsh.c:154: Executing child process
+[DEBUG] dsh.c:150: Child process 24462 detected
+[DEBUG] dsh.c:152: Compiling if necessary
+[DEBUG] dsh.c:154: Executing child process
+[DEBUG] dsh.c:150: Child process 24607 detected
+[DEBUG] dsh.c:152: Compiling if necessary
+[DEBUG] dsh.c:154: Executing child process
+[DEBUG] dsh.c:150: Child process 24633 detected
+[DEBUG] dsh.c:152: Compiling if necessary
+[DEBUG] dsh.c:154: Executing child process
+[DEBUG] dsh.c:150: Child process 24640 detected
+[DEBUG] dsh.c:152: Compiling if necessary
+[DEBUG] dsh.c:154: Executing child process
+dsh.c:45: warning: ‘exec_nth_command’ declared ‘static’ but never defined
+[DEBUG] dsh.c:150: Child process 24659 detected
+[DEBUG] dsh.c:152: Compiling if necessary
+[DEBUG] dsh.c:154: Executing child process
+[Sun Oct  6 23:15:27 2013] ERROR: Error: invalid arguments for bg command
+[DEBUG] dsh.c:153: Child process 24976 detected
+[DEBUG] dsh.c:155: Compiling if necessary
+[DEBUG] dsh.c:157: Executing child process
+[Sun Oct  6 23:33:59 2013] ERROR: The job is already in foreground.
+[DEBUG] dsh.c:153: Child process 24990 detected
+[DEBUG] dsh.c:155: Compiling if necessary
+[DEBUG] dsh.c:157: Executing child process
+[Sun Oct  6 23:35:44 2013] ERROR: Error: invalid arguments for bg command
+[Sun Oct  6 23:35:54 2013] ERROR: The job is already in foreground.

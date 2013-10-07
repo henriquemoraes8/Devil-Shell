@@ -14,7 +14,7 @@ static const char *LOG_FILENAME = "dsh.log";
 static const int PIPE_READ = 0;
 static const int PIPE_WRITE = 1;
 
-typedef int Pipe[2]; /* Defines a pipe */
+typedef int pipe_t[2]; /* Defines a pipe */
 
 /* resume a stopped job */
 void continue_job(job_t *j);
@@ -30,18 +30,23 @@ void compile (process_t *p);
 
 /* writes a log file */
 void logger(int fd, const char *str, ...);
+/* Prints the processes running in background */
+void print_jobs();
 
 /* points to the head of a jobs linked list */
 job_t *job_head = NULL;
 
 /* finds and returns a job given a jid*/
-job_t *search_j (int jid);
+job_t *search_job (int jid);
+
+/* find and returns a job given an index*/
+job_t *search_job_pos (int pos);
 
 /* Returns the process corresponding to the given id */
 process_t *get_process(int pid);
 
 static void exec_nth_command(process_t *process);
-void exec_pipe_command(job_t *job, process_t *process, Pipe output);
+void exec_pipe_command(job_t *job, process_t *process, pipe_t output);
 void io_redirection(process_t *process);
 
 /* Sets the process group id for a given job and process */
@@ -101,7 +106,7 @@ void spawn_job(job_t *j, bool fg)
 	pid_t pid;
 	process_t *p;
     
-    Pipe prev_filedes;
+    pipe_t prev_filedes;
     
 	for(p = j->first_process; p; p = p->next) {
         
@@ -109,7 +114,7 @@ void spawn_job(job_t *j, bool fg)
             continue;
         }
         
-        Pipe next_filedes;
+        pipe_t next_filedes;
         
         if (pipe(next_filedes) < 0) {
             logger(STDERR_FILENO, "Failed to create pipe");
@@ -175,11 +180,24 @@ void spawn_job(job_t *j, bool fg)
             int status, pid;
             while((pid = waitpid(WAIT_ANY, &status, WUNTRACED)) > 0){
                 if (WIFEXITED(status)){
-                        process_t *p = get_process(pid);
+                    process_t *p = get_process(pid);
+                    p->completed = true;
                     printf("%d (Completed): %s\n", pid, p->argv[0]);
+                    
                 }
-                else
-                    logger(2, "Child %d terminated abnormally", pid);
+                else if (WIFSTOPPED(status)) {
+                    DEBUG("Process %d stopped", p->pid);
+                    if (kill (-j->pgid, SIGSTOP) < 0) {
+                        logger(STDERR_FILENO,"Kill (SIGSTOP) failed.");
+                    }
+                    p->stopped = 1;
+                    j->notified = true;
+                    print_jobs();
+                    break;
+                }
+                else if (WIFCONTINUED(status)) { DEBUG("Process %d resumed", p->pid); p->stopped = 0; }
+                else if (WIFSIGNALED(status)) { DEBUG("Process %d terminated", p->pid); p->completed = 1; }
+                else logger(2, "Child %d terminated abnormally", pid);
             }
         }
         seize_tty(getpid()); // assign the terminal back to dsh
@@ -212,7 +230,7 @@ void io_redirection(process_t *process){
 }
 
 /* Given pipe, plumb it to standard output, then execute Nth command */
-void exec_pipe_command(job_t *job, process_t *process, Pipe output){
+void exec_pipe_command(job_t *job, process_t *process, pipe_t output){
     /* Fix stdout to write end of pipe */
     dup2(output[1], 1);
     close(output[0]);
@@ -220,11 +238,11 @@ void exec_pipe_command(job_t *job, process_t *process, Pipe output){
     if (process -> argc > 1)
         {
         pid_t pid;
-        Pipe input;
+        pipe_t input;
         if (pipe(input) != 0)
-            perror("Error: Failed to create pipe");
+            logger(STDERR_FILENO, "Error: Failed to create pipe");
         if ((pid = fork()) < 0)
-            perror("Error: Failed to fork");
+            logger(STDERR_FILENO, "Error: Failed to fork");
         if (pid == 0)
             {
             /* Child */
@@ -243,15 +261,14 @@ void continue_job(job_t *job){
     process_t *main_process = get_process(job -> pgid);
     main_process -> stopped = false;
     if (kill (-job->pgid, SIGCONT) < 0) {
-        perror ("kill (SIGCONT)");
-            //TODO: add to log
+        logger(STDERR_FILENO,"Kill (SIGCONT)");
     }
 }
 
 /* Compiles and execute a job */
 void exec(process_t *p){
     if(execvp(p->argv[0], p->argv) < 0) {
-        logger(STDERR_FILENO, "%s: Command not found. \n", p->argv[0]);
+        logger(STDERR_FILENO, "%s: Command not found.", p->argv[0]);
         exit(EXIT_FAILURE);
     }
 }
@@ -289,7 +306,7 @@ void compile(process_t *p){
         job.commandinfo = NULL;
         job.bg = false;
         job.first_process=&process;
-        spawn_job(&job, true);
+        spawn_job(&job, false);
         sprintf(p->argv[0], "./%s", compiled_name);
         free(compiled_name);
         printf("Pointer freed\n");
@@ -309,14 +326,12 @@ bool builtin_cmd(job_t *last_job, int argc, char **argv){
         exit(EXIT_SUCCESS);
 	}
     else if (!strcmp("jobs", argv[0])) {
-        
+        print_jobs();
         return true;
     }
-    
 	else if (!strcmp("cd", argv[0])) {
         if(argc <= 1 || chdir(argv[1]) == -1) {
-                //TODO: add to log
-            perror("Error: invalid arguments for directory change");
+            logger(STDERR_FILENO,"Error: invalid arguments for directory change");
         }
         return true;
     }
@@ -325,83 +340,90 @@ bool builtin_cmd(job_t *last_job, int argc, char **argv){
     else if (!strcmp("bg", argv[0])) {
         int jid = 0;
         job_t *job;
-        if(argc <= 1 || !(jid = atoi(argv[1]))) {
-                //TODO: add to log
-            perror("Error: invalid arguments for bg command");
+        if(argc <= 2 || !(jid = atoi(argv[1]))) {
+            logger(STDERR_FILENO,"Error: invalid arguments for bg command");
             return true;
         }
-        if (!(job = search_j(jid))) {
-                //TODO: add to log
-            perror("Error: Could not find requested job");
+        if (!(job = search_job(jid))) {
+            logger(STDERR_FILENO, "Error: Could not find requested job");
             return true;
         }
         if (job -> bg == true) {
-                //TODO: add to log
-            perror("Error: job already in background!");
+            logger(STDERR_FILENO, "Error: job already in background!");
             return true;
         }
         if(job_is_completed(job)) {
-                //TODO: add to log
-            perror("Error: job already completed!");
+            logger(STDERR_FILENO, "Error: job is already completed!");
             return true;
         }
         
         printf("#Sending job '%s' to background\n", job -> commandinfo);
-            //TODO: add to log
         continue_job(job);
         job->bg = true;
+        job->notified = false;
         return true;
     }
     
         //Foreground command, works as long as next argument is a reasonable id
     else if (!strcmp("fg", argv[0])) {
-        int jid = 0;
+        int pos = 0;
         job_t *job;
         
             //no arguments specified, use last job
         if (argc == 1) {
-            job = last_job;
+            job = search_job_pos(-1);
         }
             //right arguments given, find respective job
-        else if (argc >= 2 && (jid = atoi(argv[1]))) {
-            if (!(job = search_j(jid))) {
-                    //TODO: add to log
+        else if (argc >= 2 && (pos = atoi(argv[1]))) {
+            if (!(job = search_job_pos(pos))) {
                 logger(STDERR_FILENO, "Could not find requested job");
                 return true;
             }
             if (job -> bg == false) {
-                    //TODO: add to log
                 logger(STDERR_FILENO, "The job is already in foreground.");
                 return true;
             }
             if(job_is_completed(job)) {
-                    //TODO: add to log
                 logger(STDERR_FILENO,"Job already completed!");
                 return true;
             }
         }
         else {
-                //TODO: add to log
             logger(STDERR_FILENO,"Invalid arguments for fg command");
             return true;
         }
         
+        
         printf("#Sending job '%s' to foreground\n", job -> commandinfo);
         continue_job(job);
         job -> bg = false;
-        seize_tty(jid);
+        seize_tty(job->pgid);
             //TODO make shell wait for job
-        
         return true;
     }
     return false;       /* not a builtin command */
 }
 /* Returns the job corresponding to the given id */
-job_t *search_j (int jid) {
+job_t *search_job (int jid) {
     job_t *job = job_head;
     while (job != NULL) {
         if (job->pgid == jid)
             return job;
+        job = job->next;
+    }
+    return NULL;
+}
+job_t *search_job_pos (int pos){
+    job_t *job = job_head;
+    int count = pos;
+    while (job != NULL) {
+        if(count == 1){
+            return job;
+        }
+        if(job->next == NULL){
+            return job;
+        }
+        count--;
         job = job->next;
     }
     return NULL;
@@ -427,6 +449,19 @@ char* promptmsg(){
 	return prompt_msg;
 }
 
+void print_jobs(){
+    job_t *j = job_head;
+    int count = 1;
+    printf("Processes in the background: \n");
+    while(j!=NULL){
+        if(j->notified){
+            printf("[%d] Stopped        %s\n", count, j->commandinfo);
+        }
+        j = j->next;
+        count++;
+    }
+    printf("\n");
+}
 void logger(int fd, const char *str, ...){
     va_list argptr;
     
