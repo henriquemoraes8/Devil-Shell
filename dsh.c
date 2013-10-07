@@ -77,9 +77,7 @@ void new_child(job_t *j, process_t *p, bool fg)
     p->pid = getpid();
     
     if(fg && isatty(STDIN_FILENO)){// if fg is set and program has terminal
-		DEBUG("exec seize with pgid %d", j->pgid);
         seize_tty(j->pgid);
-        DEBUG("SEIZED");
     }// assign the terminal
     
     /* also establish child process group in child to avoid race (if parent has not done it yet). */
@@ -158,10 +156,11 @@ void spawn_job(job_t *j, bool fg)
                 new_child(j, p, fg);
                 DEBUG("Child process %d detected", p -> pid);
                 io_redirection(p);
-                DEBUG("Compiling if necessary");
                 compile(p);
-                DEBUG("Executing child process");
                 exec(p);
+                
+                logger(STDERR_FILENO,"Failure executing child");
+                exit(EXIT_FAILURE);
                 
             default: /* parent */
                 /* establish child process group */
@@ -207,7 +206,6 @@ void spawn_job(job_t *j, bool fg)
             else if (WIFCONTINUED(status)) { DEBUG("Process %d resumed", p->pid); p->stopped = 0; }
             else if (WIFSIGNALED(status)) { DEBUG("Process %d terminated", p->pid); p->completed = 1; }
             else logger(2, "Child %d terminated abnormally", pid);
-            DEBUG("Check seize job stopped is %d", job_is_stopped(j));
             if (job_is_stopped(j) && isatty(STDIN_FILENO)) {
                 seize_tty(getpid());
                 break;
@@ -269,6 +267,7 @@ void compile(process_t *p){
     char *str_end_p;
     
     if((str_end_p = strstr(filename_p, ".c")) != NULL || (str_end_p = strstr(filename_p, ".cpp")) != NULL){
+        DEBUG("Compiling...");
         int length = (int) (str_end_p - filename_p);
         if(length<=0){
             logger(STDERR_FILENO, "Filename is not valid."); //Output to logger!
