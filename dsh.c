@@ -192,6 +192,7 @@ void spawn_job(job_t *j, bool fg)
                     }
                     p->stopped = 1;
                     j->notified = true;
+                    j->bg = true;
                     print_jobs();
                     break;
                 }
@@ -454,9 +455,16 @@ void print_jobs(){
     int count = 1;
     printf("Processes in the background: \n");
     while(j!=NULL){
-        if(j->notified){
-            printf("[%d] Stopped        %s\n", count, j->commandinfo);
-        }
+        printf("[%d]", count);
+        if(j->bg)
+            printf(" bg ");
+        else
+            printf(" fg ");
+        if(j->notified)
+            printf(" Stopped        ");
+        else
+            printf(" Running        ");
+        printf("%s\n", j->commandinfo);
         j = j->next;
         count++;
     }
