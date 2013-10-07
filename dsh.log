@@ -314,4 +314,46 @@ dsh.c:51: warning: ‘exec_nth_command’ declared ‘static’ but never define
 [DEBUG] dsh.c:153: Child process 26051 detected
 [DEBUG] dsh.c:155: Compiling if necessary
 [DEBUG] dsh.c:157: Executing child process
+<<<<<<< HEAD
 >>>>>>> 6504b7c09a52b47cf699ec94c55576af83b5cfa6
+=======
+[DEBUG] dsh.c:156: Child process 26175 detected
+[DEBUG] dsh.c:158: Compiling if necessary
+[DEBUG] dsh.c:160: Executing child process
+[DEBUG] dsh.c:159: Child process 26342 detected
+[DEBUG] dsh.c:161: Compiling if necessary
+[DEBUG] dsh.c:163: Executing child process
+[DEBUG] dsh.c:159: Child process 26368 detected
+[DEBUG] dsh.c:161: Compiling if necessary
+[DEBUG] dsh.c:163: Executing child process
+[DEBUG] dsh.c:156: Child process 26393 detected
+[DEBUG] dsh.c:158: Compiling if necessary
+[DEBUG] dsh.c:160: Executing child process
+[DEBUG] dsh.c:159: Child process 26458 detected
+[DEBUG] dsh.c:161: Compiling if necessary
+[DEBUG] dsh.c:163: Executing child process
+[DEBUG] dsh.c:159: Child process 26566 detected
+[DEBUG] dsh.c:161: Compiling if necessary
+[DEBUG] dsh.c:163: Executing child process
+[DEBUG] dsh.c:159: Child process 39504 detected
+[DEBUG] dsh.c:161: Compiling if necessary
+[DEBUG] dsh.c:163: Executing child process
+[DEBUG] dsh.c:159: Child process 39534 detected
+[DEBUG] dsh.c:161: Compiling if necessary
+[DEBUG] dsh.c:163: Executing child process
+[DEBUG] dsh.c:159: Child process 39537 detected
+[DEBUG] dsh.c:161: Compiling if necessary
+[DEBUG] dsh.c:163: Executing child process
+[DEBUG] dsh.c:159: Child process 39568 detected
+[DEBUG] dsh.c:161: Compiling if necessary
+[DEBUG] dsh.c:163: Executing child process
+[DEBUG] dsh.c:159: Child process 39570 detected
+[DEBUG] dsh.c:161: Compiling if necessary
+[DEBUG] dsh.c:163: Executing child process
+[DEBUG] dsh.c:159: Child process 39735 detected
+[DEBUG] dsh.c:161: Compiling if necessary
+[DEBUG] dsh.c:163: Executing child process
+[DEBUG] dsh.c:159: Child process 39766 detected
+[DEBUG] dsh.c:161: Compiling if necessary
+[DEBUG] dsh.c:163: Executing child process
+>>>>>>> 278d79a9f46c07c83aab7298fc2514f381b7e751
