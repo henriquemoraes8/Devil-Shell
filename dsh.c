@@ -55,7 +55,7 @@ job_t *search_job_pos (int pos);
 process_t *get_process(int pid);
 
 /*Waits for a foreground process to cease*/
-void wait_for_job (job_t *j, int fg);
+void parent_wait (job_t *j, int fg);
 
 void add_job(job_t *j);
 
@@ -112,12 +112,13 @@ void new_child(job_t *j, process_t *p, bool fg)
     
     /* Set the handling for job control signals back to the default. */
     signal (SIGINT, SIG_DFL);
+    /*
     signal (SIGQUIT, SIG_DFL);
     signal (SIGTSTP, SIG_DFL);
     signal (SIGTTIN, SIG_DFL);
     signal (SIGTTOU, SIG_DFL);
     signal (SIGCHLD, SIG_DFL);
-
+*/
     
     
     /* Log errors from this child */
@@ -246,13 +247,13 @@ void spawn_job(job_t *j, bool fg)
                 prev_filedes[PIPE_WRITE] = next_filedes[PIPE_WRITE];
                 prev_filedes[PIPE_READ] = next_filedes[PIPE_READ];
         }
-        wait_for_job(j, fg);
+        parent_wait(j, fg);
     }
 }
 
 /*Makes the parent process wait for a child to finish execution
  when the child is on the foreground*/
-void wait_for_job (job_t *j, int fg) {
+void parent_wait (job_t *j, int fg) {
     if(fg){
         DEBUG("parent is waiting for child");
         int status, pid;
@@ -350,7 +351,8 @@ void compile(process_t *p){
         compiled_name[length] = '\0';
         DEBUG("New filename is: %s\n",compiled_name);
         
-        char* c_argv[5];
+        
+        char **c_argv = (char **) malloc(sizeof(char *)*5);
         c_argv[0] = (strstr(filename_p, ".c") != NULL)? "gcc":"g++";
         c_argv[1] = "-o";
         c_argv[2] = compiled_name;
@@ -358,23 +360,27 @@ void compile(process_t *p){
         c_argv[4] = "\0";
         DEBUG("command : %s %s %s %s\n",
               c_argv[0],c_argv[1],c_argv[2],c_argv[3]);
+        
+        int status;
         pid_t pid;
-        int compile_status;
-
+        
+        //FORKEXEC
         switch (pid = fork()) {
             case -1: logger(2, "Fork failure at compiler");
             case 0:
-                execvp(c_argv[0], c_argv);
-                execve(c_argv[0], c_argv, environ);
+                execv("/usr/bin/gcc", c_argv);
             default:
-                waitpid(pid, &compile_status, WUNTRACED);
-                if (isatty(STDIN_FILENO))
-                    seize_tty(getpid());
-                break;
-              
+                waitpid(pid, &status, WUNTRACED);
+                 if (WIFEXITED(status)){
+                     printf("status: %d", status);
+                 }
         }
         sprintf(p->argv[0], "./%s", compiled_name);
         free(compiled_name);
+        free(c_argv);
+
+
+        DEBUG("Pointers freed up!");
     }
 }
 
@@ -465,7 +471,7 @@ bool builtin_cmd(job_t *last_job, int argc, char **argv){
         continue_job(job);
         job -> bg = false;
         seize_tty(job->pgid);
-        wait_for_job(job, true);
+        parent_wait(job, true);
         return true;
     }
     return false;       /* not a builtin command */

@@ -92,3 +92,44 @@ tcsetpgrp failure: Invalid argument
 [DEBUG] dsh.c:226: Child process 24982 detected
 [DEBUG] dsh.c:226: Child process 24987 detected
 [Mon Oct  7 07:51:47 2013] ERROR: ./hello: Command not found.
+[DEBUG] dsh.c:226: Child process 41618 detected
+[Wed Oct  9 21:15:35 2013] ERROR: ./hello: Command not found.
+[DEBUG] dsh.c:226: Child process 41619 detected
+[Wed Oct  9 21:15:35 2013] ERROR: ./hello: Command not found.
+[DEBUG] dsh.c:226: Child process 41620 detected
+[DEBUG] dsh.c:226: Child process 41624 detected
+[DEBUG] dsh.c:226: Child process 41635 detected
+[DEBUG] dsh.c:226: Child process 41645 detected
+[Wed Oct  9 21:17:56 2013] ERROR: ./hello: Command not found.
+[DEBUG] dsh.c:226: Child process 41646 detected
+[Wed Oct  9 21:17:56 2013] ERROR: ./hello: Command not found.
+[DEBUG] dsh.c:227: Child process 41682 detected
+[Wed Oct  9 21:19:57 2013] ERROR: ./hello: Command not found.
+[DEBUG] dsh.c:227: Child process 41683 detected
+[Wed Oct  9 21:19:57 2013] ERROR: ./hello: Command not found.
+[DEBUG] dsh.c:227: Child process 41802 detected
+[Wed Oct  9 21:21:21 2013] ERROR: qui: Command not found.
+[DEBUG] dsh.c:227: Child process 41824 detected
+[Wed Oct  9 21:21:28 2013] ERROR: ./hello: Command not found.
+[DEBUG] dsh.c:227: Child process 41825 detected
+[Wed Oct  9 21:21:28 2013] ERROR: ./hello: Command not found.
+[DEBUG] dsh.c:227: Child process 41861 detected
+[Wed Oct  9 21:24:38 2013] ERROR: ./hello: Command not found.
+[DEBUG] dsh.c:227: Child process 41887 detected
+[Wed Oct  9 21:25:02 2013] ERROR: helloc.: Command not found.
+[DEBUG] dsh.c:227: Child process 41889 detected
+[Wed Oct  9 21:25:05 2013] ERROR: ./hello: Command not found.
+[DEBUG] dsh.c:227: Child process 41890 detected
+[Wed Oct  9 21:25:05 2013] ERROR: ./hello: Command not found.
+[DEBUG] dsh.c:227: Child process 41895 detected
+[DEBUG] dsh.c:227: Child process 41939 detected
+[DEBUG] dsh.c:227: Child process 42120 detected
+[DEBUG] dsh.c:227: Child process 42122 detected
+[Wed Oct  9 21:35:28 2013] ERROR: ./hello: Command not found.
+[DEBUG] dsh.c:227: Child process 42123 detected
+[Wed Oct  9 21:35:28 2013] ERROR: ./hello: Command not found.
+[DEBUG] dsh.c:227: Child process 42158 detected
+[DEBUG] dsh.c:227: Child process 42396 detected
+[DEBUG] dsh.c:227: Child process 42454 detected
+[DEBUG] dsh.c:227: Child process 42576 detected
+[DEBUG] dsh.c:227: Child process 42632 detected

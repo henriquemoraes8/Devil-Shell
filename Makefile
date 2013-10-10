@@ -4,7 +4,7 @@ CC = gcc
 EXECUTABLES = dsh
 #CFLAGS = -I. -Wall -DNDEBUG
 #Disable the -DNDEBUG flag for the printing the freelist
-CFLAGS = -I. -Wall
+#CFLAGS = -I. -Wall
 PTFLAG = -O2
 DEBUGFLAG = -g3
 
