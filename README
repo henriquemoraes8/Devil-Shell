@@ -75,6 +75,8 @@ process is the last process, it transfers the output of the pipe back to stdout.
 	On the parent side, it closes the pipes and waits for the child to complete (if the process is executed on the foreground) after each iteration. It also logs the status of any child that has stopped execution while performing the waitpid command.
 
 	Note that the dsh supports batch mode with syntax './dsh < batchFile'
+	
+       The Devil Shell also supports sigstop, jobs, fg, bg commands! It is known that the bg command is a bit buggy in a sense that it successfully continues to run the program, but the output of the execution is not suppressed.
 
 
 /************************

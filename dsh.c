@@ -321,7 +321,7 @@ void continue_job(job_t *job){
     if (kill (-job->pgid, SIGCONT) < 0) {
         logger(STDERR_FILENO,"Kill (SIGCONT)");
     }
-    if(isatty(getpid())){
+    if (isatty(STDIN_FILENO)) {
         seize_tty(getpid());
     }
 }

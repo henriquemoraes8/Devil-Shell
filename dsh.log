@@ -349,3 +349,4 @@ tcsetpgrp failure: Invalid argument
 [DEBUG] dsh.c:219: Child process 44312 detected after compile attempt
 [Wed Oct  9 22:37:58 2013] ERROR: Error: job already in background!
 [DEBUG] dsh.c:219: Child process 44338 detected after compile attempt
+[DEBUG] dsh.c:219: Child process 44886 detected after compile attempt
