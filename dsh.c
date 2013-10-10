@@ -291,6 +291,7 @@ void parent_wait (job_t *j, int fg) {
     }
 }
 
+/* Handles file input/output if there is any*/
 void io_redirection(process_t *process){
     if (process -> ifile) {
         int fd0 = open(process -> ifile, O_RDONLY);
