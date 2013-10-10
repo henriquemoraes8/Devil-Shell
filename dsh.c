@@ -169,7 +169,7 @@ void spawn_job(job_t *j, bool fg)
 	pid_t pid;
 	process_t *p;
     add_job(j);
-    pipe_t prev_filedes;
+    pipe_t previous_filedes;
     
 	for(p = j->first_process; p; p = p->next) {
         
@@ -181,7 +181,6 @@ void spawn_job(job_t *j, bool fg)
         
         if (pipe(next_filedes) < 0) {
             logger(STDERR_FILENO, "Failed to create pipe");
-                //TODO log message
         }
         
         switch (pid = fork()) {
@@ -200,30 +199,31 @@ void spawn_job(job_t *j, bool fg)
                 /* also establish child process group in child to avoid race (if parent has not done it yet). */
                 set_child_pgid(j, p);
 
-                DEBUG("%d was assigned a group %d (inside child)", p->pid, j->pgid);
+                DEBUG("Child %d was assigned to group %d", p->pid, j->pgid);
 
-                    // If it has pipe, open a write end
-                if (p->next) {
-                    dup2(next_filedes[PIPE_WRITE], STDOUT_FILENO);
-                    close(next_filedes[PIPE_WRITE]);
-                    close(next_filedes[PIPE_READ]);
-                }
-                    //If it is the last process, send output to stdout
-                else {
-                    DEBUG("last process");
-                    dup2(STDOUT_FILENO, next_filedes[PIPE_WRITE]);
-                }
-                //If it has a previous pipe, read input
+                //If not the first process, read from pipe before the process
                 if (p != j->first_process) {
-                    dup2(prev_filedes[PIPE_READ], STDIN_FILENO);
-                    close(prev_filedes[PIPE_READ]);
-                    close(prev_filedes[PIPE_WRITE]);
+                    close(previous_filedes[PIPE_WRITE]);
+                    dup2(previous_filedes[PIPE_READ], STDIN_FILENO);
+                    close(previous_filedes[PIPE_READ]);
+                }
+                //If it hahs a following pipe, write to it
+                if(p->next) {
+                    close(next_filedes[PIPE_READ]);
+                    dup2(next_filedes[PIPE_WRITE],STDOUT_FILENO);
+                    close(next_filedes[PIPE_WRITE]);
+                }
+                //If it is last process, dup output to stdout
+                else {
+                    dup2(STDOUT_FILENO, next_filedes[PIPE_WRITE]);
+                    close(next_filedes[PIPE_READ]);
+                    close(next_filedes[PIPE_WRITE]);
                 }
                 
                 new_child(j, p, fg);
                 compile(p);
 
-                DEBUG("Child process %d detected", p -> pid);
+                DEBUG("Child process %d detected after compile attempt", p -> pid);
                 io_redirection(p);
                 exec(p);
                 
@@ -236,16 +236,16 @@ void spawn_job(job_t *j, bool fg)
                 p->pid = pid;
                 set_child_pgid(j, p);
                 
-                    //close pipe ends
-                if (p->next == NULL) {
-                    close(next_filedes[PIPE_READ]);
-                }
-                close(next_filedes[PIPE_WRITE]);
-                
                     //The next pipe becomes the previous one
-                prev_filedes[PIPE_WRITE] = next_filedes[PIPE_WRITE];
-                prev_filedes[PIPE_READ] = next_filedes[PIPE_READ];
+                previous_filedes[PIPE_WRITE] = next_filedes[PIPE_WRITE];
+                previous_filedes[PIPE_READ] = next_filedes[PIPE_READ];
         }
+        
+        //Close remaining ends
+        if (p->next == NULL) {
+            close(next_filedes[PIPE_READ]);
+        }
+        close(previous_filedes[PIPE_WRITE]);
         wait_for_job(j, fg);
     }
 }

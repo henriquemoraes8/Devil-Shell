@@ -92,3 +92,53 @@ tcsetpgrp failure: Invalid argument
 [DEBUG] dsh.c:226: Child process 24982 detected
 [DEBUG] dsh.c:226: Child process 24987 detected
 [Mon Oct  7 07:51:47 2013] ERROR: ./hello: Command not found.
+[DEBUG] dsh.c:226: Child process 857 detected
+[DEBUG] dsh.c:226: Child process 858 detected
+[DEBUG] dsh.c:239: Child process 919 detected
+[Wed Oct  9 20:57:34 2013] ERROR: acho: Command not found.
+[DEBUG] dsh.c:239: Child process 920 detected
+[DEBUG] dsh.c:239: Child process 951 detected
+[DEBUG] dsh.c:239: Child process 952 detected
+[DEBUG] dsh.c:239: Child process 976 detected
+[DEBUG] dsh.c:239: Child process 977 detected
+[DEBUG] dsh.c:239: Child process 1003 detected
+[DEBUG] dsh.c:239: Child process 1004 detected
+[DEBUG] dsh.c:240: Child process 1053 detected
+[DEBUG] dsh.c:240: Child process 1054 detected
+[DEBUG] dsh.c:240: Child process 1081 detected
+[DEBUG] dsh.c:240: Child process 1082 detected
+[DEBUG] dsh.c:242: Child process 1106 detected
+[DEBUG] dsh.c:242: Child process 1107 detected
+[DEBUG] dsh.c:242: Child process 1157 detected
+[DEBUG] dsh.c:242: Child process 1158 detected
+[DEBUG] dsh.c:242: Child process 1220 detected
+[DEBUG] dsh.c:242: Child process 1221 detected
+[DEBUG] dsh.c:240: Child process 1252 detected
+[DEBUG] dsh.c:240: Child process 1253 detected
+[DEBUG] dsh.c:240: Child process 1292 detected
+[DEBUG] dsh.c:240: Child process 1293 detected
+[DEBUG] dsh.c:241: Child process 1350 detected
+[DEBUG] dsh.c:241: Child process 1351 detected
+[DEBUG] dsh.c:241: Child process 1358 detected
+[DEBUG] dsh.c:241: Child process 1359 detected
+[DEBUG] dsh.c:241: Child process 1360 detected
+[Wed Oct  9 21:16:46 2013]: Job [1358]: ls has been successfully reaped
+[Wed Oct  9 21:16:46 2013]: Job [1359]: ls | wc has been successfully reaped
+[DEBUG] dsh.c:241: Child process 1361 detected
+[DEBUG] dsh.c:241: Child process 1362 detected
+[Wed Oct  9 21:16:46 2013]: Job [1361]: cat < Makefile | wc > output  has been successfully reaped
+[DEBUG] dsh.c:241: Child process 1363 detected
+[DEBUG] dsh.c:241: Child process 1364 detected
+[DEBUG] dsh.c:241: Child process 1365 detected
+[DEBUG] dsh.c:241: Child process 1366 detected
+[DEBUG] dsh.c:241: Child process 1367 detected
+[DEBUG] dsh.c:241: Child process 1368 detected
+[DEBUG] dsh.c:241: Child process 1369 detected
+[DEBUG] dsh.c:241: Child process 1370 detected
+[DEBUG] dsh.c:241: Child process 1371 detected
+[DEBUG] dsh.c:241: Child process 1372 detected
+[DEBUG] dsh.c:241: Child process 1373 detected
+[DEBUG] dsh.c:241: Child process 1374 detected
+[DEBUG] dsh.c:241: Child process 1375 detected
+[DEBUG] dsh.c:241: Child process 1376 detected
+[DEBUG] dsh.c:241: Child process 1377 detected
