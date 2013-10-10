@@ -319,7 +319,11 @@ void io_redirection(process_t *process){
 /* Sends SIGCONT signal to wake up the blocked job */
 void continue_job(job_t *job){
     process_t *main_process = get_process(job -> pgid);
-    main_process -> stopped = false;
+    process_t *p = main_process;
+    while (p) {
+        p->stopped = false;
+        p = p->next;
+    }
     if (kill (-job->pgid, SIGCONT) < 0) {
         logger(STDERR_FILENO,"Kill (SIGCONT)");
     }
@@ -480,6 +484,8 @@ job_t *search_job (int jid) {
     }
     return NULL;
 }
+
+
 job_t *search_job_pos (int pos){
     job_t *job = job_head;
     int count = pos;
@@ -542,6 +548,8 @@ void print_jobs(){
     }
     fflush(stdout);
 }
+
+
 void logger(int fd, const char *str, ...){
     va_list argptr;
     
