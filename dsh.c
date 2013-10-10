@@ -170,7 +170,7 @@ void spawn_job(job_t *j, bool fg)
 	pid_t pid;
 	process_t *p;
     add_job(j);
-    pipe_t prev_filedes;
+    pipe_t previous_filedes;
     
 	for(p = j->first_process; p; p = p->next) {
         
@@ -182,7 +182,6 @@ void spawn_job(job_t *j, bool fg)
         
         if (pipe(next_filedes) < 0) {
             logger(STDERR_FILENO, "Failed to create pipe");
-                //TODO log message
         }
         
         switch (pid = fork()) {
@@ -201,30 +200,31 @@ void spawn_job(job_t *j, bool fg)
                 /* also establish child process group in child to avoid race (if parent has not done it yet). */
                 set_child_pgid(j, p);
 
-                DEBUG("%d was assigned a group %d (inside child)", p->pid, j->pgid);
+                DEBUG("Child %d was assigned to group %d", p->pid, j->pgid);
 
-                    // If it has pipe, open a write end
-                if (p->next) {
-                    dup2(next_filedes[PIPE_WRITE], STDOUT_FILENO);
-                    close(next_filedes[PIPE_WRITE]);
-                    close(next_filedes[PIPE_READ]);
-                }
-                    //If it is the last process, send output to stdout
-                else {
-                    DEBUG("last process");
-                    dup2(STDOUT_FILENO, next_filedes[PIPE_WRITE]);
-                }
-                //If it has a previous pipe, read input
+                //If not the first process, read from pipe before the process
                 if (p != j->first_process) {
-                    dup2(prev_filedes[PIPE_READ], STDIN_FILENO);
-                    close(prev_filedes[PIPE_READ]);
-                    close(prev_filedes[PIPE_WRITE]);
+                    close(previous_filedes[PIPE_WRITE]);
+                    dup2(previous_filedes[PIPE_READ], STDIN_FILENO);
+                    close(previous_filedes[PIPE_READ]);
+                }
+                //If it hahs a following pipe, write to it
+                if(p->next) {
+                    close(next_filedes[PIPE_READ]);
+                    dup2(next_filedes[PIPE_WRITE],STDOUT_FILENO);
+                    close(next_filedes[PIPE_WRITE]);
+                }
+                //If it is last process, dup output to stdout
+                else {
+                    dup2(STDOUT_FILENO, next_filedes[PIPE_WRITE]);
+                    close(next_filedes[PIPE_READ]);
+                    close(next_filedes[PIPE_WRITE]);
                 }
                 
                 new_child(j, p, fg);
                 compile(p);
 
-                DEBUG("Child process %d detected", p -> pid);
+                DEBUG("Child process %d detected after compile attempt", p -> pid);
                 io_redirection(p);
                 exec(p);
                 
@@ -237,16 +237,15 @@ void spawn_job(job_t *j, bool fg)
                 p->pid = pid;
                 set_child_pgid(j, p);
                 
-                    //close pipe ends
-                if (p->next == NULL) {
-                    close(next_filedes[PIPE_READ]);
-                }
-                close(next_filedes[PIPE_WRITE]);
-                
                     //The next pipe becomes the previous one
-                prev_filedes[PIPE_WRITE] = next_filedes[PIPE_WRITE];
-                prev_filedes[PIPE_READ] = next_filedes[PIPE_READ];
+                previous_filedes[PIPE_WRITE] = next_filedes[PIPE_WRITE];
+                previous_filedes[PIPE_READ] = next_filedes[PIPE_READ];
         }
+        //Close remaining ends
+        if (p->next == NULL) {
+            close(next_filedes[PIPE_READ]);
+        }
+        close(previous_filedes[PIPE_WRITE]);
         parent_wait(j, fg);
     }
 }
@@ -274,7 +273,7 @@ void parent_wait (job_t *j, int fg) {
                 if (kill (-j->pgid, SIGSTOP) < 0) {
                     logger(STDERR_FILENO,"Kill (SIGSTOP) failed.");
                 }
-                p->stopped = 1;
+                p->stopped = true;
                 j->notified = true;
                 j->bg = true;
                 print_jobs();
@@ -283,7 +282,7 @@ void parent_wait (job_t *j, int fg) {
             
             else if (WIFCONTINUED(status)) { DEBUG("Process %d resumed", p->pid); p->stopped = 0; }
             else if (WIFSIGNALED(status)) { DEBUG("Process %d terminated", p->pid); p->completed = 1; }
-            else logger(2, "Child %d terminated abnormally", pid);
+            else logger(STDERR_FILENO, "Child %d terminated abnormally", pid);
             if (job_is_stopped(j) && isatty(STDIN_FILENO)) {
                 seize_tty(getpid());
                 break;
@@ -320,7 +319,11 @@ void io_redirection(process_t *process){
 /* Sends SIGCONT signal to wake up the blocked job */
 void continue_job(job_t *job){
     process_t *main_process = get_process(job -> pgid);
-    main_process -> stopped = false;
+    process_t *p = main_process;
+    while (p) {
+        p->stopped = false;
+        p = p->next;
+    }
     if (kill (-job->pgid, SIGCONT) < 0) {
         logger(STDERR_FILENO,"Kill (SIGCONT)");
     }
@@ -466,11 +469,12 @@ bool builtin_cmd(job_t *last_job, int argc, char **argv){
         }
         
         
-        printf("#Sending job '%s' to foreground\n", job -> commandinfo);
+        printf("#Bringing job '%s' to foreground\n", job -> commandinfo);
         fflush(stdout);
         continue_job(job);
         job -> bg = false;
-        seize_tty(job->pgid);
+        if (isatty(STDIN_FILENO))
+            seize_tty(job->pgid);
         parent_wait(job, true);
         return true;
     }
@@ -486,6 +490,8 @@ job_t *search_job (int jid) {
     }
     return NULL;
 }
+
+
 job_t *search_job_pos (int pos){
     job_t *job = job_head;
     int count = pos;
@@ -548,6 +554,8 @@ void print_jobs(){
     }
     fflush(stdout);
 }
+
+
 void logger(int fd, const char *str, ...){
     va_list argptr;
     
