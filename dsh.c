@@ -277,7 +277,6 @@ void parent_wait (job_t *j, int fg) {
                 j->notified = true;
                 j->bg = true;
                 print_jobs();
-                break;
             }
             
             else if (WIFCONTINUED(status)) { DEBUG("Process %d resumed", p->pid); p->stopped = 0; }
@@ -541,14 +540,15 @@ void print_jobs(){
     }
     while(j!=NULL){
         printf("[%d]", count);
-        if(j->bg)
-            printf(" bg ");
-        else
-            printf(" fg ");
         if(j->notified)
-            printf(" Stopped        ");
-        else
+            printf("    Stopped     ");
+        else {
+            if(j->bg)
+                printf(" bg ");
+            else
+                printf(" fg ");
             printf(" Running        ");
+        }
         printf("%s\n", j->commandinfo);
         j = j->next;
         count++;

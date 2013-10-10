@@ -186,3 +186,9 @@ tcsetpgrp failure: Invalid argument
 [DEBUG] dsh.c:241: Child process 1376 detected
 [DEBUG] dsh.c:241: Child process 1377 detected
 >>>>>>> a4d5e73b703b98643275d6fbe3dca1c34a8b46e5
+[DEBUG] dsh.c:227: Child process 42981 detected after compile attempt
+[DEBUG] dsh.c:227: Child process 42985 detected after compile attempt
+[Wed Oct  9 21:48:43 2013]: Job [42981]: ./a has been successfully reaped
+[Wed Oct  9 21:48:54 2013] ERROR: Error: invalid arguments for bg command
+[DEBUG] dsh.c:227: Child process 43149 detected after compile attempt
+[DEBUG] dsh.c:227: Child process 43151 detected after compile attempt
