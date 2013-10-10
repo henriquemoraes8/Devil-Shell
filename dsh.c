@@ -112,14 +112,6 @@ void new_child(job_t *j, process_t *p, bool fg)
     
     /* Set the handling for job control signals back to the default. */
     signal (SIGINT, SIG_DFL);
-    /*
-    signal (SIGQUIT, SIG_DFL);
-    signal (SIGTSTP, SIG_DFL);
-    signal (SIGTTIN, SIG_DFL);
-    signal (SIGTTOU, SIG_DFL);
-    signal (SIGCHLD, SIG_DFL);
-*/
-    
     
     /* Log errors from this child */
     int log = open(LOG_FILENAME, O_CREAT | O_WRONLY | O_APPEND);
@@ -327,6 +319,9 @@ void continue_job(job_t *job){
     if (kill (-job->pgid, SIGCONT) < 0) {
         logger(STDERR_FILENO,"Kill (SIGCONT)");
     }
+    if(isatty(getpid())){
+        seize_tty(getpid());
+    }
 }
 
 /* Compiles and execute a job */
@@ -412,18 +407,16 @@ bool builtin_cmd(job_t *last_job, int argc, char **argv){
     
         //Background command, works as long as next argument is a reasonable id
     else if (!strcmp("bg", argv[0])) {
-        int jid = 0;
+        int position = 0;
         job_t *job;
-        if(argc <= 2 || !(jid = atoi(argv[1]))) {
+        if(argc != 2 || !(position = atoi(argv[1]))) {
+            printf("%d %d", position, argc);
             logger(STDERR_FILENO,"Error: invalid arguments for bg command");
             return true;
         }
-        if (!(job = search_job(jid))) {
+        if (!(job = search_job_pos(position))) {
+            printf("%d %d", position, argc);
             logger(STDERR_FILENO, "Error: Could not find requested job");
-            return true;
-        }
-        if (job -> bg == true) {
-            logger(STDERR_FILENO, "Error: job already in background!");
             return true;
         }
         if(job_is_completed(job)) {
@@ -449,12 +442,12 @@ bool builtin_cmd(job_t *last_job, int argc, char **argv){
             job = search_job_pos(-1);
         }
             //right arguments given, find respective job
-        else if (argc >= 2 && (pos = atoi(argv[1]))) {
+        else if (argc == 2 && (pos = atoi(argv[1]))) {
             if (!(job = search_job_pos(pos))) {
                 logger(STDERR_FILENO, "Could not find requested job");
                 return true;
             }
-            if (job -> bg == false) {
+            if (job -> notified == false) {
                 logger(STDERR_FILENO, "The job is already in foreground.");
                 return true;
             }
@@ -616,14 +609,6 @@ int main(){
             char **argv = j->first_process->argv;
             if(!builtin_cmd(j, argc, argv)){
                 DEBUG("***going to spawn job***");
-               
-                process_t *p = j->first_process;
-                
-                while(p!=NULL){
-                    compile(p);
-                    p=p->next;
-                }
-                
                 spawn_job(j,!(j->bg));
             }
             j = j->next;

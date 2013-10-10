@@ -192,3 +192,160 @@ tcsetpgrp failure: Invalid argument
 [Wed Oct  9 21:48:54 2013] ERROR: Error: invalid arguments for bg command
 [DEBUG] dsh.c:227: Child process 43149 detected after compile attempt
 [DEBUG] dsh.c:227: Child process 43151 detected after compile attempt
+[DEBUG] dsh.c:227: Child process 43322 detected after compile attempt
+[DEBUG] dsh.c:227: Child process 43324 detected after compile attempt
+[Wed Oct  9 21:54:27 2013]: Job [43322]: ./a has been successfully reaped
+[Wed Oct  9 21:54:30 2013] ERROR: Error: invalid arguments for bg command
+[DEBUG] dsh.c:227: Child process 43364 detected after compile attempt
+[DEBUG] dsh.c:227: Child process 43367 detected after compile attempt
+[DEBUG] dsh.c:227: Child process 43376 detected after compile attempt
+[DEBUG] dsh.c:227: Child process 43378 detected after compile attempt
+[Wed Oct  9 21:57:05 2013]: Job [43364]: ls has been successfully reaped
+[Wed Oct  9 21:57:05 2013]: Job [43367]: rm hello has been successfully reaped
+[Wed Oct  9 21:57:05 2013]: Job [43376]: hello.c has been successfully reaped
+[Wed Oct  9 21:57:10 2013] ERROR: Error: invalid arguments for bg command
+[Wed Oct  9 21:57:43 2013] ERROR: Error: invalid arguments for bg command
+[DEBUG] dsh.c:227: Child process 43411 detected after compile attempt
+[Wed Oct  9 22:00:26 2013] ERROR: Error: invalid arguments for bg command
+[Wed Oct  9 22:00:39 2013] ERROR: Error: invalid arguments for bg command
+[Wed Oct  9 22:00:44 2013] ERROR: Error: invalid arguments for bg command
+[Wed Oct  9 22:00:46 2013] ERROR: Error: invalid arguments for bg command
+[Wed Oct  9 22:00:53 2013] ERROR: Error: invalid arguments for bg command
+[Wed Oct  9 22:00:56 2013] ERROR: Error: invalid arguments for bg command
+[DEBUG] dsh.c:227: Child process 43566 detected after compile attempt
+[Wed Oct  9 22:01:51 2013] ERROR: Error: Could not find requested job
+[DEBUG] dsh.c:227: Child process 43567 detected after compile attempt
+[Wed Oct  9 22:02:10 2013]: Job [43567]: ls has been successfully reaped
+[Wed Oct  9 22:02:13 2013] ERROR: Error: Could not find requested job
+[DEBUG] dsh.c:227: Child process 43595 detected after compile attempt
+[Wed Oct  9 22:03:39 2013] ERROR: Error: Could not find requested job
+[DEBUG] dsh.c:227: Child process 43619 detected after compile attempt
+[Wed Oct  9 22:04:26 2013] ERROR: Error: Could not find requested job
+[DEBUG] dsh.c:227: Child process 43653 detected after compile attempt
+[DEBUG] dsh.c:227: Child process 43654 detected after compile attempt
+[Wed Oct  9 22:05:24 2013] ERROR: Error: job already in background!
+[Wed Oct  9 22:05:43 2013] ERROR: Error: job already in background!
+[DEBUG] dsh.c:227: Child process 43870 detected after compile attempt
+[Wed Oct  9 22:11:58 2013] ERROR: The job is already in foreground.
+[Wed Oct  9 22:12:15 2013] ERROR: The job is already in foreground.
+[DEBUG] dsh.c:227: Child process 43888 detected after compile attempt
+[Wed Oct  9 22:15:42 2013] ERROR: The job is already in foreground.
+[DEBUG] dsh.c:227: Child process 43908 detected after compile attempt
+[Wed Oct  9 22:18:10 2013] ERROR: Could not open file for input
+[Wed Oct  9 22:18:10 2013] ERROR: dsh: Command not found.
+[DEBUG] dsh.c:227: Child process 43909 detected after compile attempt
+[DEBUG] dsh.c:227: Child process 43912 detected after compile attempt
+[Wed Oct  9 22:18:34 2013] ERROR: batchFile: Command not found.
+[DEBUG] dsh.c:227: Child process 43913 detected after compile attempt
+[Wed Oct  9 22:18:38 2013] ERROR: BatchFile: Command not found.
+[DEBUG] dsh.c:227: Child process 43916 detected after compile attempt
+[DEBUG] dsh.c:619: ***going to spawn job***
+[DEBUG] dsh.c:257: parent is waiting for child
+[DEBUG] dsh.c:203: Child 43917 was assigned to group 43917
+[DEBUG] dsh.c:227: Child process 43917 detected after compile attempt
+[DEBUG] dsh.c:619: ***going to spawn job***
+[DEBUG] dsh.c:257: parent is waiting for child
+[DEBUG] dsh.c:203: Child 43918 was assigned to group 43918
+[DEBUG] dsh.c:227: Child process 43918 detected after compile attempt
+[DEBUG] dsh.c:257: parent is waiting for child
+[DEBUG] dsh.c:203: Child 43919 was assigned to group 43918
+[DEBUG] dsh.c:227: Child process 43919 detected after compile attempt
+[Wed Oct  9 22:19:00 2013]: Job [43917]: ls has been successfully reaped
+[Wed Oct  9 22:19:00 2013]: Job [43918]: ls | wc has been successfully reaped
+[DEBUG] dsh.c:619: ***going to spawn job***
+[DEBUG] dsh.c:257: parent is waiting for child
+[DEBUG] dsh.c:203: Child 43920 was assigned to group 43920
+[DEBUG] dsh.c:227: Child process 43920 detected after compile attempt
+[DEBUG] dsh.c:257: parent is waiting for child
+[DEBUG] dsh.c:203: Child 43921 was assigned to group 43920
+[DEBUG] dsh.c:227: Child process 43921 detected after compile attempt
+[Wed Oct  9 22:19:00 2013]: Job [43920]: cat < Makefile | wc > output  has been successfully reaped
+[DEBUG] dsh.c:619: ***going to spawn job***
+[DEBUG] dsh.c:257: parent is waiting for child
+[DEBUG] dsh.c:203: Child 43922 was assigned to group 43922
+[DEBUG] dsh.c:227: Child process 43922 detected after compile attempt
+[DEBUG] dsh.c:257: parent is waiting for child
+[DEBUG] dsh.c:203: Child 43923 was assigned to group 43922
+[DEBUG] dsh.c:227: Child process 43923 detected after compile attempt
+[DEBUG] dsh.c:257: parent is waiting for child
+[DEBUG] dsh.c:203: Child 43924 was assigned to group 43922
+[DEBUG] dsh.c:227: Child process 43924 detected after compile attempt
+[DEBUG] dsh.c:619: ***going to spawn job***
+[DEBUG] dsh.c:257: parent is waiting for child
+[DEBUG] dsh.c:203: Child 43925 was assigned to group 43925
+[DEBUG] dsh.c:227: Child process 43925 detected after compile attempt
+[DEBUG] dsh.c:257: parent is waiting for child
+[DEBUG] dsh.c:203: Child 43926 was assigned to group 43925
+[DEBUG] dsh.c:227: Child process 43926 detected after compile attempt
+[DEBUG] dsh.c:257: parent is waiting for child
+[DEBUG] dsh.c:203: Child 43927 was assigned to group 43925
+[DEBUG] dsh.c:227: Child process 43927 detected after compile attempt
+[DEBUG] dsh.c:619: ***going to spawn job***
+[DEBUG] dsh.c:257: parent is waiting for child
+[DEBUG] dsh.c:203: Child 43928 was assigned to group 43928
+[DEBUG] dsh.c:227: Child process 43928 detected after compile attempt
+[DEBUG] dsh.c:257: parent is waiting for child
+[DEBUG] dsh.c:203: Child 43929 was assigned to group 43928
+[DEBUG] dsh.c:227: Child process 43929 detected after compile attempt
+[DEBUG] dsh.c:257: parent is waiting for child
+[DEBUG] dsh.c:203: Child 43930 was assigned to group 43928
+[DEBUG] dsh.c:227: Child process 43930 detected after compile attempt
+[DEBUG] dsh.c:619: ***going to spawn job***
+[DEBUG] dsh.c:257: parent is waiting for child
+[DEBUG] dsh.c:203: Child 43931 was assigned to group 43931
+[DEBUG] dsh.c:227: Child process 43931 detected after compile attempt
+[DEBUG] dsh.c:257: parent is waiting for child
+[DEBUG] dsh.c:203: Child 43932 was assigned to group 43931
+[DEBUG] dsh.c:227: Child process 43932 detected after compile attempt
+[DEBUG] dsh.c:257: parent is waiting for child
+[DEBUG] dsh.c:203: Child 43933 was assigned to group 43931
+[DEBUG] dsh.c:227: Child process 43933 detected after compile attempt
+[DEBUG] dsh.c:619: ***going to spawn job***
+[DEBUG] dsh.c:257: parent is waiting for child
+[DEBUG] dsh.c:203: Child 43934 was assigned to group 43934
+[DEBUG] dsh.c:227: Child process 43934 detected after compile attempt
+[DEBUG] dsh.c:257: parent is waiting for child
+[DEBUG] dsh.c:203: Child 43935 was assigned to group 43934
+[DEBUG] dsh.c:227: Child process 43935 detected after compile attempt
+[DEBUG] dsh.c:257: parent is waiting for child
+[DEBUG] dsh.c:203: Child 43936 was assigned to group 43934
+[DEBUG] dsh.c:227: Child process 43936 detected after compile attempt
+[DEBUG] dsh.c:227: Child process 43939 detected after compile attempt
+[DEBUG] dsh.c:619: ***going to spawn job***
+[DEBUG] dsh.c:257: parent is waiting for child
+[DEBUG] dsh.c:203: Child 43940 was assigned to group 43940
+[DEBUG] dsh.c:227: Child process 43940 detected after compile attempt
+[DEBUG] dsh.c:227: Child process 43946 detected after compile attempt
+[DEBUG] dsh.c:227: Child process 43947 detected after compile attempt
+[DEBUG] dsh.c:227: Child process 43948 detected after compile attempt
+[DEBUG] dsh.c:227: Child process 43949 detected after compile attempt
+[DEBUG] dsh.c:227: Child process 43950 detected after compile attempt
+[DEBUG] dsh.c:227: Child process 43983 detected after compile attempt
+[DEBUG] dsh.c:227: Child process 43984 detected after compile attempt
+[DEBUG] dsh.c:227: Child process 43985 detected after compile attempt
+[DEBUG] dsh.c:227: Child process 43986 detected after compile attempt
+[DEBUG] dsh.c:227: Child process 44073 detected after compile attempt
+[DEBUG] dsh.c:227: Child process 44075 detected after compile attempt
+[DEBUG] dsh.c:227: Child process 44076 detected after compile attempt
+[DEBUG] dsh.c:227: Child process 44082 detected after compile attempt
+[DEBUG] dsh.c:227: Child process 44083 detected after compile attempt
+[DEBUG] dsh.c:227: Child process 44089 detected after compile attempt
+[DEBUG] dsh.c:227: Child process 44090 detected after compile attempt
+[DEBUG] dsh.c:219: Child process 44117 detected after compile attempt
+[DEBUG] dsh.c:219: Child process 44118 detected after compile attempt
+[DEBUG] dsh.c:343: Filename ends with .c or .cpp
+
+[DEBUG] dsh.c:347: New filename is: hello
+
+[DEBUG] dsh.c:357: command : gcc -o hello hello.c
+
+[DEBUG] dsh.c:378: Pointers freed up!
+[DEBUG] dsh.c:219: Child process 44120 detected after compile attempt
+[DEBUG] dsh.c:219: Child process 44129 detected after compile attempt
+[DEBUG] dsh.c:219: Child process 44130 detected after compile attempt
+[DEBUG] dsh.c:219: Child process 44292 detected after compile attempt
+[Wed Oct  9 22:34:20 2013] ERROR: Error: job already in background!
+[DEBUG] dsh.c:219: Child process 44309 detected after compile attempt
+[DEBUG] dsh.c:219: Child process 44312 detected after compile attempt
+[Wed Oct  9 22:37:58 2013] ERROR: Error: job already in background!
+[DEBUG] dsh.c:219: Child process 44338 detected after compile attempt

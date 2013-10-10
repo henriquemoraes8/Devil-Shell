@@ -4,8 +4,10 @@
 
 int main()
 {
+    int count = 0;
    while(1) {
-           //fprintf("No, my loop is even more infinite!\n");
-	sleep(1000);
+    printf("counter is: %d\n", count);
+	sleep(1);
+    count ++;
    }
 }

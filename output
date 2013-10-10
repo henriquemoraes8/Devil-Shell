@@ -13,8 +13,10 @@ dsh.dSYM
 dsh.h
 dsh.log
 fork-examples
+hello
 hello.c
 helper.c
+infinity
 main.c
 output
 parse.c
