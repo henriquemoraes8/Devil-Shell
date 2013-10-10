@@ -65,7 +65,7 @@ void remove_zombies();
 void io_redirection(process_t *process);
 
 void add_job(job_t *j){
-    if(j!=NULL){
+    if(j){
         if(job_head == NULL) {
             job_head = j;
         } else {
@@ -159,8 +159,10 @@ void remove_zombies() {
 
 void spawn_job(job_t *j, bool fg)
 {
+    DEBUG("Before for loop argv[1] = %s",j->first_process->argv[1]);
 	pid_t pid;
 	process_t *p;
+    job_head = NULL;
     add_job(j);
     pipe_t previous_filedes;
     
@@ -175,7 +177,7 @@ void spawn_job(job_t *j, bool fg)
         if (pipe(next_filedes) < 0) {
             logger(STDERR_FILENO, "Failed to create pipe");
         }
-        
+        DEBUG("Before switch");
         switch (pid = fork()) {
             case -1: /* fork failure */
                 logger(STDERR_FILENO,"Fork failure.");
