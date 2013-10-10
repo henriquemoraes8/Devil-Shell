@@ -273,7 +273,7 @@ void wait_for_job (job_t *j, int fg) {
                 if (kill (-j->pgid, SIGSTOP) < 0) {
                     logger(STDERR_FILENO,"Kill (SIGSTOP) failed.");
                 }
-                p->stopped = 1;
+                p->stopped = true;
                 j->notified = true;
                 j->bg = true;
                 print_jobs();
@@ -282,7 +282,7 @@ void wait_for_job (job_t *j, int fg) {
             
             else if (WIFCONTINUED(status)) { DEBUG("Process %d resumed", p->pid); p->stopped = 0; }
             else if (WIFSIGNALED(status)) { DEBUG("Process %d terminated", p->pid); p->completed = 1; }
-            else logger(2, "Child %d terminated abnormally", pid);
+            else logger(STDERR_FILENO, "Child %d terminated abnormally", pid);
             if (job_is_stopped(j) && isatty(STDIN_FILENO)) {
                 seize_tty(getpid());
                 break;
@@ -464,11 +464,12 @@ bool builtin_cmd(job_t *last_job, int argc, char **argv){
         }
         
         
-        printf("#Sending job '%s' to foreground\n", job -> commandinfo);
+        printf("#Bringing job '%s' to foreground\n", job -> commandinfo);
         fflush(stdout);
         continue_job(job);
         job -> bg = false;
-        seize_tty(job->pgid);
+        if (isatty(STDIN_FILENO))
+            seize_tty(job->pgid);
         wait_for_job(job, true);
         return true;
     }
